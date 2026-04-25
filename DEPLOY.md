@@ -10,7 +10,7 @@ npm install
 cp .env.example .env.local
 
 # 3. Edit .env.local — add your WhatsApp number
-# NEXT_PUBLIC_WHATSAPP_NUMBER=905XXXXXXXXX
+# NEXT_PUBLIC_WHATSAPP_NUMBER=905376724979
 
 # 4. Run development server
 npm run dev
