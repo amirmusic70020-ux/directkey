@@ -1,0 +1,152 @@
+[
+  {
+    "id": "skyline-istanbul",
+    "slug": "skyline-istanbul",
+    "title": "Skyline Residence",
+    "location": "Beylikdüzü, Istanbul",
+    "city": "Istanbul",
+    "priceMin": 120000,
+    "priceMax": 350000,
+    "priceLabel": "$120K – $350K",
+    "bedrooms": "1–3",
+    "size": "65–180 m²",
+    "status": "Ready to Move",
+    "featured": true,
+    "badge": "HOT",
+    "images": [
+      "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&q=80",
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&q=80",
+      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80"
+    ],
+    "description": "A prestigious residential complex in the heart of Istanbul with stunning city views, modern amenities, and excellent transport links. Perfect for investment or residence.",
+    "amenities": [
+      "Swimming Pool",
+      "Gym",
+      "24/7 Security",
+      "Parking",
+      "Concierge",
+      "Children's Playground"
+    ],
+    "whatsappText": "Hi, I'm interested in Skyline Residence in Istanbul. Please send me more details."
+  },
+  {
+    "id": "azure-antalya",
+    "slug": "azure-antalya",
+    "title": "Azure Coast Villas",
+    "location": "Konyaaltı, Antalya",
+    "city": "Antalya",
+    "priceMin": 250000,
+    "priceMax": 750000,
+    "priceLabel": "$250K – $750K",
+    "bedrooms": "3–5",
+    "size": "180–420 m²",
+    "status": "Under Construction",
+    "featured": true,
+    "badge": "NEW",
+    "images": [
+      "https://images.unsplash.com/photo-1613977257363-707ba9348227?w=800&q=80",
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80",
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80"
+    ],
+    "description": "Exclusive beachfront villas with Mediterranean views, private pools, and direct sea access. Experience luxury living on the Turkish Riviera.",
+    "amenities": [
+      "Private Pool",
+      "Sea View",
+      "Direct Beach Access",
+      "Smart Home",
+      "Landscaped Garden",
+      "BBQ Area"
+    ],
+    "whatsappText": "Hi, I'm interested in Azure Coast Villas in Antalya. Please send me more details."
+  },
+  {
+    "id": "bosphorus-view",
+    "slug": "bosphorus-view",
+    "title": "Bosphorus View Apartments",
+    "location": "Üsküdar, Istanbul",
+    "city": "Istanbul",
+    "priceMin": 180000,
+    "priceMax": 480000,
+    "priceLabel": "$180K – $480K",
+    "bedrooms": "1–4",
+    "size": "70–220 m²",
+    "status": "Ready to Move",
+    "featured": true,
+    "badge": "EXCLUSIVE",
+    "images": [
+      "https://images.unsplash.com/photo-1516912481808-3406841bd33c?w=800&q=80",
+      "https://images.unsplash.com/photo-1574362848149-11496d93a7c7?w=800&q=80",
+      "https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=800&q=80"
+    ],
+    "description": "Iconic apartments overlooking the Bosphorus strait. Combining historic charm with contemporary design, these residences offer an unparalleled Istanbul experience.",
+    "amenities": [
+      "Bosphorus View",
+      "Rooftop Terrace",
+      "Fitness Center",
+      "Spa",
+      "Concierge",
+      "Underground Parking"
+    ],
+    "whatsappText": "Hi, I'm interested in Bosphorus View Apartments. Please send me more details."
+  },
+  {
+    "id": "mediterranean-bodrum",
+    "slug": "mediterranean-bodrum",
+    "title": "Mediterranean Gardens",
+    "location": "Yalikavak, Bodrum",
+    "city": "Bodrum",
+    "priceMin": 320000,
+    "priceMax": 900000,
+    "priceLabel": "$320K – $900K",
+    "bedrooms": "2–5",
+    "size": "120–380 m²",
+    "status": "Ready to Move",
+    "featured": false,
+    "badge": "",
+    "images": [
+      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80",
+      "https://images.unsplash.com/photo-1591964006776-90e6c0a693ad?w=800&q=80",
+      "https://images.unsplash.com/photo-1523217582562-09d0def993a6?w=800&q=80"
+    ],
+    "description": "Serene villas and apartments nestled in lush gardens near the Aegean sea. Bodrum's most sought-after address for discerning international buyers.",
+    "amenities": [
+      "Sea View",
+      "Infinity Pool",
+      "Garden",
+      "Marina Access",
+      "24/7 Security",
+      "Restaurant"
+    ],
+    "whatsappText": "Hi, I'm interested in Mediterranean Gardens in Bodrum. Please send me more details."
+  },
+  {
+    "id": "city-center-izmir",
+    "slug": "city-center-izmir",
+    "title": "Kordon Prime Residences",
+    "location": "Alsancak, İzmir",
+    "city": "Izmir",
+    "priceMin": 95000,
+    "priceMax": 280000,
+    "priceLabel": "$95K – $280K",
+    "bedrooms": "1–3",
+    "size": "55–160 m²",
+    "status": "Pre-Sale",
+    "featured": false,
+    "badge": "PRE-SALE",
+    "images": [
+      "https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800&q=80",
+      "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800&q=80",
+      "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80"
+    ],
+    "description": "Modern residences in the vibrant heart of İzmir, steps from the famous Kordon waterfront promenade. Ideal for those seeking a lively cosmopolitan lifestyle.",
+    "amenities": [
+      "City View",
+      "Rooftop Pool",
+      "Co-working Space",
+      "Gym",
+      "Cafe",
+      "Bike Storage"
+    ],
+    "whatsappText": "Hi, I'm interested in Kordon Prime Residences in Izmir. Please send me more details."
+  }
+]

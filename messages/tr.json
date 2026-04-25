@@ -1,0 +1,98 @@
+{
+  "meta": {
+    "title": "DirectKey – Türkiye'de Premium Gayrimenkul",
+    "description": "Türkiye'deki hayalinizdeki mülkü bulun. Uluslararası alıcıları Türkiye'nin en iyi gayrimenkul projeleriyle buluşturuyoruz."
+  },
+  "nav": {
+    "home": "Ana Sayfa",
+    "projects": "Projeler",
+    "contact": "İletişim",
+    "bookConsultation": "Ücretsiz Danışma Al"
+  },
+  "hero": {
+    "badge": "500'den Fazla Uluslararası Alıcı Tarafından Tercih Edildi",
+    "title": "Türkiye'deki Hayalinizdeki Mülkü Bulun",
+    "subtitle": "Uluslararası alıcıları Türkiye'nin en iyi gayrimenkulleriyle buluşturuyoruz. Gizli ücret yok. Tam komisyon şeffaflığı.",
+    "cta_primary": "Projeleri İncele",
+    "cta_secondary": "WhatsApp'ta Konuş",
+    "stat1_value": "500+",
+    "stat1_label": "Satılan Mülk",
+    "stat2_value": "12+",
+    "stat2_label": "Yıllık Deneyim",
+    "stat3_value": "3",
+    "stat3_label": "Büyük Şehir"
+  },
+  "featured": {
+    "title": "Öne Çıkan Projeler",
+    "subtitle": "Türkiye'nin en gözde konumlarında seçilmiş mülkler",
+    "viewAll": "Tüm Projeleri Gör"
+  },
+  "how": {
+    "title": "Nasıl Çalışır?",
+    "subtitle": "Basit, şeffaf ve hızlı — her şeyi biz hallederiz",
+    "step1_title": "Projelere Göz At",
+    "step1_desc": "Premium Türk mülkleri seçkimizi keşfedin",
+    "step2_title": "Ziyaret Ayarla",
+    "step2_desc": "Size uygun bir zamanda ücretsiz mülk turu ayarlayın",
+    "step3_title": "Anlaşmayı Kapat",
+    "step3_desc": "Tüm evrak, hukuki işlemler ve tapu transferini biz hallederiz"
+  },
+  "cta": {
+    "title": "Türkiye'ye Yatırım Yapmaya Hazır Mısınız?",
+    "subtitle": "Bugün uzman ekibimizle ücretsiz danışma alın",
+    "button": "Ücretsiz Danışma Al"
+  },
+  "projects": {
+    "title": "Tüm Projeler",
+    "subtitle": "Türkiye'nin en güzel konumlarında premium mülkleri keşfedin",
+    "filter_all": "Tümü",
+    "filter_istanbul": "İstanbul",
+    "filter_antalya": "Antalya",
+    "filter_bodrum": "Bodrum",
+    "filter_izmir": "İzmir",
+    "viewDetails": "Detayları Gör",
+    "bedrooms": "Oda",
+    "size": "Alan",
+    "status": "Durum",
+    "noProjects": "Proje bulunamadı."
+  },
+  "project": {
+    "bookVisit": "Ziyaret Ayarla",
+    "whatsappChat": "WhatsApp'ta Yaz",
+    "amenities": "Özellikler",
+    "overview": "Genel Bakış",
+    "priceRange": "Fiyat Aralığı",
+    "location": "Konum",
+    "backToProjects": "← Projelere Dön"
+  },
+  "form": {
+    "title": "Mülk Ziyareti Ayarla",
+    "subtitle": "Bilgilerinizi doldurun, 24 saat içinde sizi arayalım",
+    "name": "Ad Soyad",
+    "namePlaceholder": "Ahmet Yılmaz",
+    "phone": "WhatsApp Numarası",
+    "phonePlaceholder": "+90 555 000 0000",
+    "budget": "Bütçeniz",
+    "budgetSelect": "Bütçe aralığı seçin",
+    "budget1": "100.000 $'ın altında",
+    "budget2": "100.000 – 250.000 $",
+    "budget3": "250.000 – 500.000 $",
+    "budget4": "500.000 – 1.000.000 $",
+    "budget5": "1.000.000 $'ın üzerinde",
+    "project": "İlgilendiğiniz Proje",
+    "message": "Mesaj (isteğe bağlı)",
+    "messagePlaceholder": "Özel gereksinimleriniz veya sorularınız?",
+    "submit": "Gönder ve WhatsApp'a Geç",
+    "submitting": "Gönderiliyor...",
+    "success": "✓ Talebiniz alındı! WhatsApp'a yönlendiriliyorsunuz...",
+    "error": "Bir hata oluştu. Lütfen tekrar deneyin.",
+    "required": "Bu alan zorunludur"
+  },
+  "footer": {
+    "tagline": "Türkiye'de gayrimenkulde güvenilir ortağınız",
+    "rights": "© 2024 DirectKey. Tüm hakları saklıdır.",
+    "privacy": "Gizlilik Politikası",
+    "terms": "Kullanım Koşulları",
+    "contact": "Bize Ulaşın"
+  }
+}

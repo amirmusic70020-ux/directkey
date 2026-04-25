@@ -1,0 +1,98 @@
+{
+  "meta": {
+    "title": "DirectKey – Premium Properties in Turkey",
+    "description": "Find your dream property in Turkey. We connect international buyers with the best real estate projects in Istanbul, Antalya, Bodrum and more."
+  },
+  "nav": {
+    "home": "Home",
+    "projects": "Projects",
+    "contact": "Contact",
+    "bookConsultation": "Book Free Consultation"
+  },
+  "hero": {
+    "badge": "Trusted by 500+ International Buyers",
+    "title": "Find Your Dream Property in Turkey",
+    "subtitle": "We connect international buyers with Turkey's finest real estate. No hidden fees. 100% commission transparency.",
+    "cta_primary": "Explore Projects",
+    "cta_secondary": "Talk on WhatsApp",
+    "stat1_value": "500+",
+    "stat1_label": "Properties Sold",
+    "stat2_value": "12+",
+    "stat2_label": "Years Experience",
+    "stat3_value": "3",
+    "stat3_label": "Major Cities"
+  },
+  "featured": {
+    "title": "Featured Projects",
+    "subtitle": "Handpicked properties in Turkey's most desirable locations",
+    "viewAll": "View All Projects"
+  },
+  "how": {
+    "title": "How It Works",
+    "subtitle": "Simple, transparent, and fast — we handle everything",
+    "step1_title": "Browse Projects",
+    "step1_desc": "Explore our curated selection of premium Turkish properties",
+    "step2_title": "Book a Visit",
+    "step2_desc": "Schedule a free property tour at your convenience",
+    "step3_title": "Close the Deal",
+    "step3_desc": "We handle all paperwork, legals, and title transfer"
+  },
+  "cta": {
+    "title": "Ready to Invest in Turkey?",
+    "subtitle": "Get a free consultation with our expert team today",
+    "button": "Book Free Consultation"
+  },
+  "projects": {
+    "title": "All Projects",
+    "subtitle": "Discover premium properties across Turkey's finest locations",
+    "filter_all": "All",
+    "filter_istanbul": "Istanbul",
+    "filter_antalya": "Antalya",
+    "filter_bodrum": "Bodrum",
+    "filter_izmir": "Izmir",
+    "viewDetails": "View Details",
+    "bedrooms": "Beds",
+    "size": "Size",
+    "status": "Status",
+    "noProjects": "No projects found."
+  },
+  "project": {
+    "bookVisit": "Book a Visit",
+    "whatsappChat": "Chat on WhatsApp",
+    "amenities": "Amenities",
+    "overview": "Overview",
+    "priceRange": "Price Range",
+    "location": "Location",
+    "backToProjects": "← Back to Projects"
+  },
+  "form": {
+    "title": "Book a Property Visit",
+    "subtitle": "Fill in your details and we'll contact you within 24 hours",
+    "name": "Full Name",
+    "namePlaceholder": "John Smith",
+    "phone": "WhatsApp Number",
+    "phonePlaceholder": "+1 555 000 0000",
+    "budget": "Your Budget",
+    "budgetSelect": "Select budget range",
+    "budget1": "Under $100,000",
+    "budget2": "$100,000 – $250,000",
+    "budget3": "$250,000 – $500,000",
+    "budget4": "$500,000 – $1,000,000",
+    "budget5": "Over $1,000,000",
+    "project": "Interested Project",
+    "message": "Message (optional)",
+    "messagePlaceholder": "Any specific requirements or questions?",
+    "submit": "Submit & Continue to WhatsApp",
+    "submitting": "Submitting...",
+    "success": "✓ Request received! Redirecting to WhatsApp...",
+    "error": "Something went wrong. Please try again.",
+    "required": "This field is required"
+  },
+  "footer": {
+    "tagline": "Your trusted partner for real estate in Turkey",
+    "rights": "© 2024 DirectKey. All rights reserved.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "contact": "Contact Us"
+  }
+}
