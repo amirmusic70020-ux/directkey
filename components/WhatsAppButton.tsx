@@ -2,7 +2,7 @@
 
 import { MessageCircle } from 'lucide-react';
 
-const WHATSAPP_NUMBER = '905XXXXXXXXX';
+const WHATSAPP_NUMBER = '905376724979';
 const DEFAULT_MESSAGE = "Hi, I'm interested in properties in Turkey. Can you help me?";
 
 interface Props {

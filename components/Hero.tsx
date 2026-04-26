@@ -4,7 +4,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 import { ArrowRight, MessageCircle, CheckCircle } from 'lucide-react';
 
-const WHATSAPP_NUMBER = '905XXXXXXXXX';
+const WHATSAPP_NUMBER = '905376724979';
 
 export default function Hero() {
   const t = useTranslations('hero');
