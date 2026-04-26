@@ -7,4 +7,6 @@ export type Locale = (typeof locales)[number];
 export default getRequestConfig(async ({ locale }) => {
   if (!locales.includes(locale as Locale)) notFound();
   return {
-    messages: (await import(`./messages/${locale}.json`)).defaul
+    messages: (await import(`./messages/${locale}.json`)).default,
+  };
+});

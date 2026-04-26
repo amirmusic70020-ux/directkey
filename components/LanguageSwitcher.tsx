@@ -54,4 +54,12 @@ export default function LanguageSwitcher() {
                 }`}
               >
                 <span>{lang.flag}</span>
-                <span>{l
+                <span>{lang.label}</span>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
