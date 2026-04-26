@@ -10,6 +10,8 @@ const LANGS = [
   { code: 'tr', label: 'Türkçe', flag: '🇹🇷' },
   { code: 'fa', label: 'فارسی', flag: '🇮🇷' },
   { code: 'ar', label: 'العربية', flag: '🇸🇦' },
+  { code: 'zh', label: '中文', flag: '🇨🇳' },
+  { code: 'ru', label: 'Русский', flag: '🇷🇺' },
 ];
 
 export default function LanguageSwitcher() {
@@ -52,12 +54,4 @@ export default function LanguageSwitcher() {
                 }`}
               >
                 <span>{lang.flag}</span>
-                <span>{lang.label}</span>
-              </button>
-            ))}
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
+                <span>{l

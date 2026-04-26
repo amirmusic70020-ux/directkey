@@ -94,7 +94,4 @@ const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER!;
 ## 🔮 Phase 2 Roadmap
 - [ ] Admin dashboard with lead CRM
 - [ ] Email notifications on new leads
-- [ ] AI chat agent for property recommendations
-- [ ] Virtual tour integration
-- [ ] Mortgage calculator
-- [ ] User accounts & saved properties
+- [ ] AI chat agent for property recommendations

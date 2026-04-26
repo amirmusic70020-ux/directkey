@@ -6,7 +6,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import WhatsAppButton from '@/components/WhatsAppButton';
 
-const locales = ['en', 'tr', 'fa', 'ar'];
+const locales = ['en', 'tr', 'fa', 'ar', 'zh', 'ru'];
 const rtlLocales = ['fa', 'ar'];
 
 export async function generateStaticParams() {
@@ -52,11 +52,4 @@ export default async function LocaleLayout({
       <body className="bg-gray-50 text-gray-900 antialiased">
         <NextIntlClientProvider messages={messages}>
           <Header />
-          <main>{children}</main>
-          <Footer />
-          <WhatsAppButton />
-        </NextIntlClientProvider>
-      </body>
-    </html>
-  );
-}
+     

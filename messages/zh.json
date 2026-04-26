@@ -1,0 +1,98 @@
+{
+  "meta": {
+    "title": "DirectKey – 土耳其优质房产",
+    "description": "在土耳其寻找您的理想房产。我们为国际买家提供伊斯坦布尔、安塔利亚、博德鲁姆等地的最佳房地产项目。"
+  },
+  "nav": {
+    "home": "首页",
+    "projects": "项目",
+    "contact": "联系我们",
+    "bookConsultation": "免费预约咨询"
+  },
+  "hero": {
+    "badge": "500+ 国际买家的信赖之选",
+    "title": "在土耳其寻找您的理想房产",
+    "subtitle": "我们为国际买家提供土耳其最优质的房地产项目。无隐藏费用，佣金完全透明。",
+    "cta_primary": "浏览项目",
+    "cta_secondary": "WhatsApp 咨询",
+    "stat1_value": "500+",
+    "stat1_label": "已售房产",
+    "stat2_value": "12+",
+    "stat2_label": "年行业经验",
+    "stat3_value": "3",
+    "stat3_label": "主要城市"
+  },
+  "featured": {
+    "title": "精选项目",
+    "subtitle": "土耳其最受欢迎地段的精心挑选房产",
+    "viewAll": "查看所有项目"
+  },
+  "how": {
+    "title": "如何运作",
+    "subtitle": "简单、透明、高效——我们处理一切",
+    "step1_title": "浏览项目",
+    "step1_desc": "探索我们精心筛选的土耳其优质房产",
+    "step2_title": "预约看房",
+    "step2_desc": "按您的时间安排免费看房",
+    "step3_title": "完成交易",
+    "step3_desc": "我们处理所有文件、法律事务和产权转让"
+  },
+  "cta": {
+    "title": "准备好在土耳其投资了吗？",
+    "subtitle": "立即获取我们专家团队的免费咨询",
+    "button": "免费预约咨询"
+  },
+  "projects": {
+    "title": "所有项目",
+    "subtitle": "发现土耳其最优质地段的高端房产",
+    "filter_all": "全部",
+    "filter_istanbul": "伊斯坦布尔",
+    "filter_antalya": "安塔利亚",
+    "filter_bodrum": "博德鲁姆",
+    "filter_izmir": "伊兹密尔",
+    "viewDetails": "查看详情",
+    "bedrooms": "卧室",
+    "size": "面积",
+    "status": "状态",
+    "noProjects": "未找到项目。"
+  },
+  "project": {
+    "bookVisit": "预约看房",
+    "whatsappChat": "WhatsApp 聊天",
+    "amenities": "配套设施",
+    "overview": "项目概况",
+    "priceRange": "价格区间",
+    "location": "位置",
+    "backToProjects": "← 返回项目列表"
+  },
+  "form": {
+    "title": "预约看房",
+    "subtitle": "填写您的信息，我们将在24小时内与您联系",
+    "name": "姓名",
+    "namePlaceholder": "张伟",
+    "phone": "WhatsApp 号码",
+    "phonePlaceholder": "+86 138 0000 0000",
+    "budget": "您的预算",
+    "budgetSelect": "选择预算范围",
+    "budget1": "10万美元以下",
+    "budget2": "10万 – 25万美元",
+    "budget3": "25万 – 50万美元",
+    "budget4": "50万 – 100万美元",
+    "budget5": "100万美元以上",
+    "project": "感兴趣的项目",
+    "message": "留言（可选）",
+    "messagePlaceholder": "有什么特别要求或问题吗？",
+    "submit": "提交并跳转至 WhatsApp",
+    "submitting": "提交中...",
+    "success": "✓ 请求已收到！正在跳转至 WhatsApp...",
+    "error": "出现错误，请重试。",
+    "required": "此项为必填项"
+  },
+  "footer": {
+    "tagline": "您在土耳其房地产市场的可信赖合作伙伴",
+    "rights": "© 2024 DirectKey. 版权所有。",
+    "privacy": "隐私政策",
+    "terms": "服务条款",
+    "contact": "联系我们"
+  }
+}
