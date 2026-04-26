@@ -14,7 +14,11 @@
     "react-dom": "^18.3.1",
     "next-intl": "^3.14.1",
     "lucide-react": "^0.383.0",
-    "clsx": "^2.1.1"
+    "clsx": "^2.1.1",
+    "sanity": "^3.40.0",
+    "next-sanity": "^9.0.0",
+    "@sanity/vision": "^3.40.0",
+    "@sanity/image-url": "^1.0.2"
   },
   "devDependencies": {
     "typescript": "^5.4.5",

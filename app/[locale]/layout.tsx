@@ -52,11 +52,4 @@ export default async function LocaleLayout({
       <body className="bg-gray-50 text-gray-900 antialiased">
         <NextIntlClientProvider messages={messages}>
           <Header />
-          <main>{children}</main>
-          <Footer />
-          <WhatsAppButton />
-        </NextIntlClientProvider>
-      </body>
-    </html>
-  );
-}
+          <main>{
