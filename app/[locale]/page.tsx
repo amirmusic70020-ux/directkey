@@ -1,4 +1,7 @@
 import { getTranslations, unstable_setRequestLocale } from 'next-intl/server';
+
+// Revalidate every 60 seconds — picks up new Sanity projects automatically
+export const revalidate = 60;
 import Link from 'next/link';
 import Hero from '@/components/Hero';
 import ProjectCard from '@/components/ProjectCard';
