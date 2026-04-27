@@ -239,4 +239,97 @@ export async function logInteraction(
 
 // ─── Get conversation history from lead record ────────────────────────────────
 
-export function extractConver
+export function extractConversationHistory(lead: AirtableLead): ConversationMessage[] {
+  try {
+    if (lead.notes) {
+      const parsed = JSON.parse(lead.notes);
+      return parsed?.conversationHistory || [];
+    }
+  } catch {
+    // Notes field might have non-JSON content from manual entry
+  }
+  return [];
+}
+
+// ─── Send owner notification (WhatsApp to owner's personal number) ────────────
+
+export interface OwnerNotification {
+  clientPhone: string;
+  clientName?: string;
+  reason: string;
+  conversationSummary?: string;
+  budget?: string;
+  purpose?: string;
+  timeline?: string;
+  projectInterest?: string;
+  lastUserMessage: string;
+}
+
+export async function notifyOwner(notification: OwnerNotification): Promise<void> {
+  const ownerPhone = process.env.OWNER_WHATSAPP_NUMBER;
+  if (!ownerPhone) {
+    console.warn('[Notify] OWNER_WHATSAPP_NUMBER not set — skipping notification');
+    return;
+  }
+
+  const { sendWhatsAppMessage } = await import('./whatsapp');
+
+  const { clientPhone, clientName, reason, conversationSummary, budget, purpose, timeline, projectInterest, lastUserMessage } = notification;
+
+  const lines = [
+    '🔔 *DirectKey — نیاز به مداخله انسانی*',
+    '',
+    `👤 *مشتری:* ${clientName || 'ناشناس'}`,
+    `📱 *شماره:* ${clientPhone}`,
+  ];
+
+  if (projectInterest) lines.push(`🏠 *پروژه:* ${projectInterest}`);
+  if (purpose) lines.push(`🎯 *هدف:* ${purpose === 'Investment' ? 'سرمایه‌گذاری' : 'سکونت'}`);
+  if (budget && budget !== 'unknown') lines.push(`💰 *بودجه:* ${budget}`);
+  if (timeline && timeline !== 'unknown') lines.push(`⏱ *زمان‌بندی:* ${timeline}`);
+
+  lines.push('');
+  if (conversationSummary) {
+    lines.push(`📋 *خلاصه مکالمه:*`);
+    lines.push(conversationSummary);
+    lines.push('');
+  }
+
+  lines.push(`💬 *آخرین پیام مشتری:*`);
+  lines.push(`"${lastUserMessage.slice(0, 300)}"`);
+  lines.push('');
+  lines.push(`⚠️ *دلیل:* ${reason}`);
+  lines.push('');
+  lines.push('لطفاً هرچه زودتر با این مشتری تماس بگیرید.');
+
+  try {
+    await sendWhatsAppMessage(ownerPhone, lines.join('\n'));
+    console.log('[Notify] Owner notified about:', clientPhone);
+  } catch (err: any) {
+    console.error('[Notify] Failed to notify owner:', err.message);
+  }
+}
+
+// ─── Helper: map Airtable record to AirtableLead ──────────────────────────────
+
+function mapRecord(record: any): AirtableLead {
+  const f = record.fields || {};
+  return {
+    id: record.id,
+    name: f['Name'],
+    whatsapp: f['WhatsApp'] || '',
+    leadScore: f['Lead Score'],
+    projectInterest: f['Project Interest'],
+    nationality: f['Nationality'],
+    requiresHuman: f['Requires Human'],
+    saraHandled: f['SARA Handled'],
+    nextFollowUp: f['Next Follow-up'],
+    conversationSummary: f['Conversation Summary'],
+    notes: f['Notes'],
+    budget: f['Budget'],
+    purpose: f['Purpose'],
+    timeline: f['Timeline'],
+    language: f['Language'],
+    status: f['Status'],
+  };
+}
