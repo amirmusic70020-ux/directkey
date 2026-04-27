@@ -28,6 +28,11 @@ export interface AirtableLead {
   nextFollowUp?: string;
   conversationSummary?: string;
   notes?: string;
+  budget?: string;
+  purpose?: string;
+  timeline?: string;
+  language?: string;
+  status?: string;
   // We store conversation history as JSON in the Notes field
   conversationHistory?: ConversationMessage[];
 }
@@ -129,7 +134,13 @@ export async function updateLead(
   if (crmUpdate.leadScore !== undefined) fields['Lead Score'] = crmUpdate.leadScore;
   if (crmUpdate.summary) fields['Conversation Summary'] = crmUpdate.summary;
   if (crmUpdate.requiresHuman !== undefined) fields['Requires Human'] = crmUpdate.requiresHuman;
-  if (clientName) fields['Name'] = clientName;
+  if (crmUpdate.budget && crmUpdate.budget !== 'unknown') fields['Budget'] = crmUpdate.budget;
+  if (crmUpdate.purpose && crmUpdate.purpose !== 'Unknown') fields['Purpose'] = crmUpdate.purpose;
+  if (crmUpdate.timeline && crmUpdate.timeline !== 'unknown') fields['Timeline'] = crmUpdate.timeline;
+  if (crmUpdate.language) fields['Language'] = crmUpdate.language;
+  if (crmUpdate.status) fields['Status'] = crmUpdate.status;
+  if (crmUpdate.clientName) fields['Name'] = crmUpdate.clientName;
+  else if (clientName) fields['Name'] = clientName;
 
   // Next follow-up: set to tomorrow if conversation is active
   if (!crmUpdate.requiresHuman && crmUpdate.status !== 'Booked') {
@@ -208,12 +219,19 @@ export function extractConversationHistory(lead: AirtableLead): ConversationMess
 
 // ─── Send owner notification (WhatsApp to owner's personal number) ────────────
 
-export async function notifyOwner(
-  clientPhone: string,
-  clientName: string | undefined,
-  reason: string,
-  lastMessage: string
-): Promise<void> {
+export interface OwnerNotification {
+  clientPhone: string;
+  clientName?: string;
+  reason: string;
+  conversationSummary?: string;
+  budget?: string;
+  purpose?: string;
+  timeline?: string;
+  projectInterest?: string;
+  lastUserMessage: string;
+}
+
+export async function notifyOwner(notification: OwnerNotification): Promise<void> {
   const ownerPhone = process.env.OWNER_WHATSAPP_NUMBER;
   if (!ownerPhone) {
     console.warn('[Notify] OWNER_WHATSAPP_NUMBER not set — skipping notification');
@@ -222,21 +240,36 @@ export async function notifyOwner(
 
   const { sendWhatsAppMessage } = await import('./whatsapp');
 
-  const notification = [
-    '🔔 *DirectKey — نیاز به مداخله*',
+  const { clientPhone, clientName, reason, conversationSummary, budget, purpose, timeline, projectInterest, lastUserMessage } = notification;
+
+  const lines = [
+    '🔔 *DirectKey — نیاز به مداخله انسانی*',
     '',
-    `👤 مشتری: ${clientName || clientPhone}`,
-    `📱 شماره: ${clientPhone}`,
-    `⚠️ دلیل: ${reason}`,
-    '',
-    `💬 آخرین پیام:`,
-    `"${lastMessage.slice(0, 200)}"`,
-    '',
-    'لطفاً هرچه زودتر پاسخ دهید.',
-  ].join('\n');
+    `👤 *مشتری:* ${clientName || 'ناشناس'}`,
+    `📱 *شماره:* ${clientPhone}`,
+  ];
+
+  if (projectInterest) lines.push(`🏠 *پروژه:* ${projectInterest}`);
+  if (purpose) lines.push(`🎯 *هدف:* ${purpose === 'Investment' ? 'سرمایه‌گذاری' : 'سکونت'}`);
+  if (budget && budget !== 'unknown') lines.push(`💰 *بودجه:* ${budget}`);
+  if (timeline && timeline !== 'unknown') lines.push(`⏱ *زمان‌بندی:* ${timeline}`);
+
+  lines.push('');
+  if (conversationSummary) {
+    lines.push(`📋 *خلاصه مکالمه:*`);
+    lines.push(conversationSummary);
+    lines.push('');
+  }
+
+  lines.push(`💬 *آخرین پیام مشتری:*`);
+  lines.push(`"${lastUserMessage.slice(0, 300)}"`);
+  lines.push('');
+  lines.push(`⚠️ *دلیل:* ${reason}`);
+  lines.push('');
+  lines.push('لطفاً هرچه زودتر با این مشتری تماس بگیرید.');
 
   try {
-    await sendWhatsAppMessage(ownerPhone, notification);
+    await sendWhatsAppMessage(ownerPhone, lines.join('\n'));
     console.log('[Notify] Owner notified about:', clientPhone);
   } catch (err: any) {
     console.error('[Notify] Failed to notify owner:', err.message);
@@ -259,5 +292,10 @@ function mapRecord(record: any): AirtableLead {
     nextFollowUp: f['Next Follow-up'],
     conversationSummary: f['Conversation Summary'],
     notes: f['Notes'],
+    budget: f['Budget'],
+    purpose: f['Purpose'],
+    timeline: f['Timeline'],
+    language: f['Language'],
+    status: f['Status'],
   };
 }
