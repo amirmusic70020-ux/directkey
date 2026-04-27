@@ -4,7 +4,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 import { MapPin, Phone, Mail } from 'lucide-react';
 
-const WHATSAPP_NUMBER = '905376724979';
+const WHATSAPP_NUMBER = '905551005587';
 
 export default function Footer() {
   const t = useTranslations('footer');

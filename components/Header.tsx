@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { Menu, X, Phone } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
 
-const WHATSAPP_NUMBER = '905376724979';
+const WHATSAPP_NUMBER = '905551005587';
 
 export default function Header() {
   const t = useTranslations('nav');

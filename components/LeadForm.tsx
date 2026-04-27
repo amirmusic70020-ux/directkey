@@ -10,7 +10,7 @@ interface Props {
   onClose: () => void;
 }
 
-const WHATSAPP_NUMBER = '905376724979';
+const WHATSAPP_NUMBER = '905551005587';
 
 export default function LeadForm({ projectTitle, whatsappText, onClose }: Props) {
   const t = useTranslations('form');
