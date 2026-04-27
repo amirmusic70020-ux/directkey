@@ -129,9 +129,12 @@ async function processIncomingMessage(body: any) {
   console.log(`[SARA] Needs human: ${needsHuman}, Lead score: ${crmUpdate?.leadScore}`);
 
   // ── 6. Send reply via WhatsApp ────────────────────────────────────────────
+  console.log(`[SARA] Sending reply to ${from} (length: ${response.length} chars)`);
   const sendResult = await sendWhatsAppMessage(from, response);
   if (!sendResult.success) {
-    console.error('[SARA] Failed to send WhatsApp message:', sendResult.error);
+    console.error('[SARA] ❌ Failed to send WhatsApp message to', from, '— error:', sendResult.error);
+  } else {
+    console.log('[SARA] ✅ WhatsApp reply sent successfully, messageId:', sendResult.messageId);
   }
 
   // ── 7. Update conversation history ────────────────────────────────────────
@@ -160,13 +163,4 @@ async function processIncomingMessage(body: any) {
     await notifyOwner({
       clientPhone: from,
       clientName: crmUpdate?.clientName || lead?.name,
-      reason: crmUpdate?.summary || 'مشتری نیاز به مشاور انسانی دارد',
-      conversationSummary: crmUpdate?.summary || lead?.conversationSummary,
-      budget: crmUpdate?.budget || lead?.budget,
-      purpose: crmUpdate?.purpose || lead?.purpose,
-      timeline: crmUpdate?.timeline || lead?.timeline,
-      projectInterest: projectName || lead?.projectInterest,
-      lastUserMessage: text,
-    });
-  }
-}
+      reason: crmUpdate?.summary || 'مشتری نیاز به مشاور انسانی دار�

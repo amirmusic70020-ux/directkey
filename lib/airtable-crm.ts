@@ -126,42 +126,76 @@ export async function updateLead(
 ): Promise<void> {
   if (!BASE_ID || !TOKEN) return;
 
-  const fields: Record<string, any> = {
+  // ── Core fields: definitely text / number / checkbox / date ─────────────────
+  // These never cause INVALID_MULTIPLE_CHOICE_OPTIONS errors.
+  const coreFields: Record<string, any> = {
     'SARA Handled': true,
     'Notes': JSON.stringify({ conversationHistory: newHistory }),
   };
 
-  if (crmUpdate.leadScore !== undefined) fields['Lead Score'] = crmUpdate.leadScore;
-  if (crmUpdate.summary) fields['Conversation Summary'] = crmUpdate.summary;
-  if (crmUpdate.requiresHuman !== undefined) fields['Requires Human'] = crmUpdate.requiresHuman;
-  if (crmUpdate.budget && crmUpdate.budget !== 'unknown') fields['Budget'] = crmUpdate.budget;
-  if (crmUpdate.purpose && crmUpdate.purpose !== 'Unknown') fields['Purpose'] = crmUpdate.purpose;
-  if (crmUpdate.timeline && crmUpdate.timeline !== 'unknown') fields['Timeline'] = crmUpdate.timeline;
-  if (crmUpdate.language) fields['Language'] = crmUpdate.language;
-  if (crmUpdate.status) fields['Status'] = crmUpdate.status;
-  if (crmUpdate.clientName) fields['Name'] = crmUpdate.clientName;
-  else if (clientName) fields['Name'] = clientName;
+  if (crmUpdate.leadScore !== undefined) coreFields['Lead Score'] = crmUpdate.leadScore;
+  if (crmUpdate.summary) coreFields['Conversation Summary'] = crmUpdate.summary;
+  if (crmUpdate.requiresHuman !== undefined) coreFields['Requires Human'] = crmUpdate.requiresHuman;
+  if (crmUpdate.clientName) coreFields['Name'] = crmUpdate.clientName;
+  else if (clientName) coreFields['Name'] = clientName;
 
   // Next follow-up: set to tomorrow if conversation is active
   if (!crmUpdate.requiresHuman && crmUpdate.status !== 'Booked') {
     const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
-    fields['Next Follow-up'] = tomorrow;
+    coreFields['Next Follow-up'] = tomorrow;
   }
 
+  // Patch 1: core fields (must succeed)
   try {
     const res = await fetch(`${BASE_URL}/${BASE_ID}/Leads/${recordId}`, {
       method: 'PATCH',
       headers: headers(),
-      body: JSON.stringify({ fields }),
+      body: JSON.stringify({ fields: coreFields }),
     });
 
     if (!res.ok) {
-      console.error('[Airtable] updateLead error:', await res.text());
+      console.error('[Airtable] updateLead (core) error:', await res.text());
     } else {
-      console.log('[Airtable] Lead updated:', recordId);
+      console.log('[Airtable] Lead updated (core):', recordId);
     }
   } catch (err: any) {
-    console.error('[Airtable] updateLead failed:', err.message);
+    console.error('[Airtable] updateLead (core) failed:', err.message);
+  }
+
+  // ── Select / text fields: may fail if Airtable field type is Single Select
+  // and the option isn't configured yet. We attempt separately so core never blocks.
+  const selectFields: Record<string, any> = {};
+
+  if (crmUpdate.budget && crmUpdate.budget !== 'unknown') selectFields['Budget'] = crmUpdate.budget;
+  if (crmUpdate.purpose && crmUpdate.purpose !== 'Unknown') selectFields['Purpose'] = crmUpdate.purpose;
+  if (crmUpdate.timeline && crmUpdate.timeline !== 'unknown') selectFields['Timeline'] = crmUpdate.timeline;
+  if (crmUpdate.language) selectFields['Language'] = crmUpdate.language;
+  if (crmUpdate.status) selectFields['Status'] = crmUpdate.status;
+
+  if (Object.keys(selectFields).length === 0) return;
+
+  // Patch 2: select/enum fields (non-critical — failure logged but ignored)
+  try {
+    const res = await fetch(`${BASE_URL}/${BASE_ID}/Leads/${recordId}`, {
+      method: 'PATCH',
+      headers: headers(),
+      body: JSON.stringify({ fields: selectFields }),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      console.warn(
+        '[Airtable] updateLead (select fields) failed — ' +
+        'check that Airtable Single Select fields have the correct options, ' +
+        'or change them to Single Line Text. Fields attempted:',
+        Object.keys(selectFields),
+        'Error:', errText
+      );
+    } else {
+      console.log('[Airtable] Lead updated (select fields):', recordId);
+    }
+  } catch (err: any) {
+    console.warn('[Airtable] updateLead (select fields) exception:', err.message);
   }
 }
 
@@ -205,97 +239,4 @@ export async function logInteraction(
 
 // ─── Get conversation history from lead record ────────────────────────────────
 
-export function extractConversationHistory(lead: AirtableLead): ConversationMessage[] {
-  try {
-    if (lead.notes) {
-      const parsed = JSON.parse(lead.notes);
-      return parsed?.conversationHistory || [];
-    }
-  } catch {
-    // Notes field might have non-JSON content from manual entry
-  }
-  return [];
-}
-
-// ─── Send owner notification (WhatsApp to owner's personal number) ────────────
-
-export interface OwnerNotification {
-  clientPhone: string;
-  clientName?: string;
-  reason: string;
-  conversationSummary?: string;
-  budget?: string;
-  purpose?: string;
-  timeline?: string;
-  projectInterest?: string;
-  lastUserMessage: string;
-}
-
-export async function notifyOwner(notification: OwnerNotification): Promise<void> {
-  const ownerPhone = process.env.OWNER_WHATSAPP_NUMBER;
-  if (!ownerPhone) {
-    console.warn('[Notify] OWNER_WHATSAPP_NUMBER not set — skipping notification');
-    return;
-  }
-
-  const { sendWhatsAppMessage } = await import('./whatsapp');
-
-  const { clientPhone, clientName, reason, conversationSummary, budget, purpose, timeline, projectInterest, lastUserMessage } = notification;
-
-  const lines = [
-    '🔔 *DirectKey — نیاز به مداخله انسانی*',
-    '',
-    `👤 *مشتری:* ${clientName || 'ناشناس'}`,
-    `📱 *شماره:* ${clientPhone}`,
-  ];
-
-  if (projectInterest) lines.push(`🏠 *پروژه:* ${projectInterest}`);
-  if (purpose) lines.push(`🎯 *هدف:* ${purpose === 'Investment' ? 'سرمایه‌گذاری' : 'سکونت'}`);
-  if (budget && budget !== 'unknown') lines.push(`💰 *بودجه:* ${budget}`);
-  if (timeline && timeline !== 'unknown') lines.push(`⏱ *زمان‌بندی:* ${timeline}`);
-
-  lines.push('');
-  if (conversationSummary) {
-    lines.push(`📋 *خلاصه مکالمه:*`);
-    lines.push(conversationSummary);
-    lines.push('');
-  }
-
-  lines.push(`💬 *آخرین پیام مشتری:*`);
-  lines.push(`"${lastUserMessage.slice(0, 300)}"`);
-  lines.push('');
-  lines.push(`⚠️ *دلیل:* ${reason}`);
-  lines.push('');
-  lines.push('لطفاً هرچه زودتر با این مشتری تماس بگیرید.');
-
-  try {
-    await sendWhatsAppMessage(ownerPhone, lines.join('\n'));
-    console.log('[Notify] Owner notified about:', clientPhone);
-  } catch (err: any) {
-    console.error('[Notify] Failed to notify owner:', err.message);
-  }
-}
-
-// ─── Helper: map Airtable record to AirtableLead ──────────────────────────────
-
-function mapRecord(record: any): AirtableLead {
-  const f = record.fields || {};
-  return {
-    id: record.id,
-    name: f['Name'],
-    whatsapp: f['WhatsApp'] || '',
-    leadScore: f['Lead Score'],
-    projectInterest: f['Project Interest'],
-    nationality: f['Nationality'],
-    requiresHuman: f['Requires Human'],
-    saraHandled: f['SARA Handled'],
-    nextFollowUp: f['Next Follow-up'],
-    conversationSummary: f['Conversation Summary'],
-    notes: f['Notes'],
-    budget: f['Budget'],
-    purpose: f['Purpose'],
-    timeline: f['Timeline'],
-    language: f['Language'],
-    status: f['Status'],
-  };
-}
+export function extractConver
