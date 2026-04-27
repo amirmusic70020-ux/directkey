@@ -15,6 +15,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { waitUntil } from '@vercel/functions';
 import { callSARA } from '@/lib/sara';
 import { sendWhatsAppMessage, markAsRead, parseWebhookPayload } from '@/lib/whatsapp';
 import {
@@ -58,9 +59,11 @@ export async function POST(request: NextRequest) {
   }
 
   // Meta requires 200 OK quickly — process async
-  // We return 200 immediately and handle in background
-  processIncomingMessage(body).catch(err =>
-    console.error('[WhatsApp Webhook] Unhandled error in processIncomingMessage:', err)
+  // waitUntil keeps the Vercel function alive after the response is sent
+  waitUntil(
+    processIncomingMessage(body).catch(err =>
+      console.error('[WhatsApp Webhook] Unhandled error in processIncomingMessage:', err)
+    )
   );
 
   return NextResponse.json({ status: 'ok' }, { status: 200 });
