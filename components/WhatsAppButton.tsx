@@ -3,17 +3,15 @@
 import { MessageCircle } from 'lucide-react';
 
 const WHATSAPP_NUMBER = '905551005587';
-const DEFAULT_MESSAGE = "Hi, I'm interested in properties in Turkey. Can you help me?";
 
 interface Props {
-  message?: string;
   label?: string;
   className?: string;
   variant?: 'floating' | 'inline';
 }
 
-export default function WhatsAppButton({ message = DEFAULT_MESSAGE, label, className = '', variant = 'floating' }: Props) {
-  const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+export default function WhatsAppButton({ label, className = '', variant = 'floating' }: Props) {
+  const url = `https://wa.me/${WHATSAPP_NUMBER}`;
 
   if (variant === 'inline') {
     return (
