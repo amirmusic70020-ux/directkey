@@ -136,7 +136,7 @@ export async function GET(request: NextRequest) {
     }
 
     lines.push(`━━━━━━━━━━━━━━━`);
-    lines.push(`🤖 SARA | DirectKey`);
+    lines.push(`شب بخیر 🌙 | SARA | DirectKey`);
 
     const message = lines.join('\n');
 
