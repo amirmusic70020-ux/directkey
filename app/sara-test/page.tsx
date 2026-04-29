@@ -1,7 +1,0 @@
-import dynamic from 'next/dynamic';
-
-const SaraChat = dynamic(() => import('./SaraChat'), { ssr: false });
-
-export default function SaraTestPage() {
-  return <SaraChat />;
-}

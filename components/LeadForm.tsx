@@ -48,10 +48,7 @@ export default function LeadForm({ projectTitle, whatsappText, onClose }: Props)
 
       // Redirect to WhatsApp after 1.5 seconds
       setTimeout(() => {
-        const msg = encodeURIComponent(
-          `${whatsappText}\n\nName: ${form.name}\nBudget: ${form.budget}\nPhone: ${form.phone}`
-        );
-        window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
+        window.open(`https://wa.me/${WHATSAPP_NUMBER}`, '_blank');
         onClose();
       }, 1500);
     } catch {

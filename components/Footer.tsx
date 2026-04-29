@@ -40,13 +40,13 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-semibold mb-4">{t('contact')}</h4>
             <div className="space-y-3 text-sm">
-              <div className="flex items-center gap-2">
-                <MapPin size={14} className="text-gold-500 flex-shrink-0" />
-                <span>Istanbul, Turkey</span>
+              <div className="flex items-start gap-2">
+                <MapPin size={14} className="text-gold-500 flex-shrink-0 mt-0.5" />
+                <span>Ömerli Mahallesi Kadirova Caddesi No:42, Volony Ömerli Malikaneleri, 34799 Çekmeköy/İstanbul</span>
               </div>
               <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-gold-400 transition">
                 <Phone size={14} className="text-gold-500 flex-shrink-0" />
-                <span>+90 5XX XXX XXXX</span>
+                <span>+90 555 100 55 87</span>
               </a>
               <a href="mailto:info@directkey.com" className="flex items-center gap-2 hover:text-gold-400 transition">
                 <Mail size={14} className="text-gold-500 flex-shrink-0" />
@@ -59,8 +59,8 @@ export default function Footer() {
         <div className="border-t border-white/5 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
           <span>{t('rights')}</span>
           <div className="flex gap-4">
-            <Link href="#" className="hover:text-gold-400 transition">{t('privacy')}</Link>
-            <Link href="#" className="hover:text-gold-400 transition">{t('terms')}</Link>
+            <Link href="/privacy" className="hover:text-gold-400 transition">{t('privacy')}</Link>
+            <Link href="/terms" className="hover:text-gold-400 transition">{t('terms')}</Link>
           </div>
         </div>
       </div>
