@@ -8,7 +8,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { waitUntil } from '@vercel/functions';
 import { callSARA, ClientProfile } from '@/lib/sara';
-import { sendWhatsAppMessage, markAsRead, parseWebhookPayload } from '@/lib/whatsapp';
+import { sendWhatsAppMessage, sendWhatsAppDocument, markAsRead, parseWebhookPayload } from '@/lib/whatsapp';
+import { getProjectBySlugFromSanity } from '@/sanity/queries';
 import {
   findLeadByPhone,
   createLead,
@@ -96,9 +97,9 @@ async function processIncomingMessage(body: any) {
     return;
   }
 
-  const { response, needsHuman, crmUpdate } = saraResult;
+  const { response, needsHuman, crmUpdate, brochureProjectSlug } = saraResult;
   console.log(`[SARA] Response to ${from}: "${response.slice(0, 80)}..."`);
-  console.log(`[SARA] Needs human: ${needsHuman}, Lead score: ${crmUpdate?.leadScore}`);
+  console.log(`[SARA] Needs human: ${needsHuman}, Lead score: ${crmUpdate?.leadScore}, Brochure: ${brochureProjectSlug || 'none'}`);
 
   console.log(`[SARA] Sending reply to ${from} (length: ${response.length} chars)`);
   const sendResult = await sendWhatsAppMessage(from, response);
@@ -106,6 +107,30 @@ async function processIncomingMessage(body: any) {
     console.error('[SARA] FAILED to send WhatsApp message to', from, '-- error:', sendResult.error);
   } else {
     console.log('[SARA] WhatsApp reply sent successfully, messageId:', sendResult.messageId);
+  }
+
+  // ── Send brochure PDF if SARA requested it ────────────────────────────────
+  if (brochureProjectSlug) {
+    try {
+      const project = await getProjectBySlugFromSanity(brochureProjectSlug);
+      if (project?.brochureUrl) {
+        const brochureResult = await sendWhatsAppDocument(
+          from,
+          project.brochureUrl,
+          `${project.title} - Brochure.pdf`,
+          `📋 ${project.title}`
+        );
+        if (brochureResult.success) {
+          console.log(`[SARA] Brochure sent for "${project.title}" to ${from}`);
+        } else {
+          console.error('[SARA] Failed to send brochure:', brochureResult.error);
+        }
+      } else {
+        console.warn(`[SARA] Brochure requested for slug "${brochureProjectSlug}" but no brochureUrl found`);
+      }
+    } catch (err: any) {
+      console.error('[SARA] Error sending brochure:', err.message);
+    }
   }
 
   const newHistory = [

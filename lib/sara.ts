@@ -38,6 +38,7 @@ export interface SaraResult {
   response: string;
   needsHuman: boolean;
   crmUpdate: CrmUpdate | null;
+  brochureProjectSlug?: string;
 }
 
 export interface CrmUpdate {
@@ -71,12 +72,13 @@ export async function callSARA(
             ? `$${(p.priceMin / 1000).toFixed(0)}K–$${(p.priceMax / 1000).toFixed(0)}K`
             : 'Price on request');
         return [
-          `📍 ${p.title}`,
+          `📍 ${p.title} [slug: ${p.id}]`,
           `   City: ${p.city || p.location}`,
           `   Price: ${price}`,
           `   Bedrooms: ${p.bedrooms || 'Various'}`,
           `   Status: ${p.status}`,
           p.description ? `   Details: ${p.description.slice(0, 120)}...` : '',
+          p.brochureUrl ? `   Brochure: ✓ available` : '',
         ].filter(Boolean).join('\n');
       }).join('\n\n');
     } else {
@@ -125,11 +127,16 @@ export async function callSARA(
     }
   }
 
+  // Extract brochure signal
+  const brochureMatch = rawResponse.match(/\[SEND_BROCHURE:([^\]]+)\]/);
+  const brochureProjectSlug = brochureMatch ? brochureMatch[1].trim() : undefined;
+
   // 6. Clean response before sending to WhatsApp
   const cleanResponse = rawResponse
     .replace(/\[HUMAN_NEEDED\]/g, '')
     .replace(/\[NEEDS_HUMAN\]/g, '')
     .replace(/\[CRM\][\s\S]*?\[\/CRM\]/g, '')
+    .replace(/\[SEND_BROCHURE:[^\]]*\]/g, '')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 
@@ -137,6 +144,7 @@ export async function callSARA(
     response: cleanResponse,
     needsHuman,
     crmUpdate,
+    brochureProjectSlug,
   };
 }
 
@@ -267,6 +275,17 @@ ${projectsContext}
 - مشتری آماده رزرو یا قرارداد باشه
 - بودجه بالای ۵۰۰ هزار دلار و جدی باشه
 - مشتری ناراحت یا ناامید باشه
+
+
+## ارسال بروشور (PDF)
+اگه مشتری خواست بروشور، کاتالوگ، PDF یا اطلاعات تکمیلی درباره یه پروژه:
+- نگاه کن اون پروژه "Brochure: ✓ available" داره یا نه
+- اگه داشت، این سیگنال رو در انتهای پیامت اضافه کن (برای مشتری نامرئیه):
+[SEND_BROCHURE:slug-پروژه]
+- مثال: اگه مشتری بروشور Sky Residence Istanbul رو خواست و slug اون sky-residence-istanbul هست:
+[SEND_BROCHURE:sky-residence-istanbul]
+- اگه پروژه بروشور نداشت بگو: "فعلاً بروشور دیجیتال اون پروژه آماده نیست، ولی می‌تونم اطلاعات کامل رو اینجا برات توضیح بدم."
+- فقط یه بار در هر مکالمه بروشور ارسال کن
 
 ## آپدیت CRM
 بعد از هر پیام، این بلاک JSON رو به آخر پیامت اضافه کن (برای مشتری نامرئیه):
