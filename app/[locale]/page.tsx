@@ -8,6 +8,7 @@ import ProjectCard from '@/components/ProjectCard';
 import { getFeaturedProjects } from '@/lib/projects';
 import { getFeaturedProjectsFromSanity } from '@/sanity/queries';
 import { ArrowRight, Search, CalendarCheck, FileCheck, Star, Shield, TrendingUp } from 'lucide-react';
+import PricingSection from '@/components/PricingSection';
 
 async function HowItWorks({ locale }: { locale: string }) {
   const t = await getTranslations({ locale, namespace: 'how' });
@@ -138,6 +139,7 @@ export default async function LandingPage({
         </div>
       </section>
       <HowItWorks locale={locale} />
+      <PricingSection />
       <CTASection locale={locale} />
     </>
   );
