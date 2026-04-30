@@ -62,6 +62,58 @@ export async function sendWhatsAppMessage(
   }
 }
 
+// ─── Send a document (PDF brochure) ──────────────────────────────────────────
+
+export async function sendWhatsAppDocument(
+  to: string,
+  documentUrl: string,
+  filename: string = 'Brochure.pdf',
+  caption: string = ''
+): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  const phoneId = process.env.WHATSAPP_PHONE_ID;
+  const token = process.env.WHATSAPP_TOKEN;
+
+  if (!phoneId || !token) {
+    return { success: false, error: 'WhatsApp credentials not configured' };
+  }
+
+  const normalizedTo = to.replace(/[^\d+]/g, '').replace(/^\+/, '');
+
+  try {
+    const res = await fetch(`${GRAPH_API_BASE}/${phoneId}/messages`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        messaging_product: 'whatsapp',
+        recipient_type: 'individual',
+        to: normalizedTo,
+        type: 'document',
+        document: {
+          link: documentUrl,
+          filename,
+          caption,
+        },
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      console.error('[WhatsApp] Document send error:', JSON.stringify(data));
+      return { success: false, error: data?.error?.message || 'Unknown error' };
+    }
+
+    const messageId = data?.messages?.[0]?.id;
+    console.log(`[WhatsApp] Document sent to ${normalizedTo}, id: ${messageId}`);
+    return { success: true, messageId };
+  } catch (err: any) {
+    console.error('[WhatsApp] Document fetch failed:', err.message);
+    return { success: false, error: err.message };
+  }
+}
+
 // ─── Mark message as read ─────────────────────────────────────────────────────
 
 export async function markAsRead(messageId: string): Promise<void> {
@@ -140,5 +192,63 @@ export function parseWebhookPayload(body: any): IncomingWhatsAppMessage | null {
   } catch (err) {
     console.error('[WhatsApp] Failed to parse webhook payload:', err);
     return null;
+  }
+}
+
+// ─── Send follow-up template message ─────────────────────────────────────────
+
+export async function sendWhatsAppTemplate(
+  to: string,
+  clientName: string,
+  projectInterest: string
+): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  const phoneId = process.env.WHATSAPP_PHONE_ID;
+  const token = process.env.WHATSAPP_TOKEN;
+
+  if (!phoneId || !token) {
+    return { success: false, error: 'WhatsApp credentials not configured' };
+  }
+
+  const normalizedTo = to.replace(/[^\d+]/g, '').replace(/^\+/, '');
+
+  try {
+    const res = await fetch(`${GRAPH_API_BASE}/${phoneId}/messages`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        messaging_product: 'whatsapp',
+        to: normalizedTo,
+        type: 'template',
+        template: {
+          name: 'directkey_followup_fa',
+          language: { code: 'fa' },
+          components: [
+            {
+              type: 'body',
+              parameters: [
+                { type: 'text', text: clientName },
+                { type: 'text', text: projectInterest },
+              ],
+            },
+          ],
+        },
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      console.error('[WhatsApp] Template send error:', JSON.stringify(data));
+      return { success: false, error: data?.error?.message || 'Unknown error' };
+    }
+
+    const messageId = data?.messages?.[0]?.id;
+    console.log(`[WhatsApp] Follow-up template sent to ${normalizedTo}, id: ${messageId}`);
+    return { success: true, messageId };
+  } catch (err: any) {
+    console.error('[WhatsApp] Template fetch failed:', err.message);
+    return { success: false, error: err.message };
   }
 }

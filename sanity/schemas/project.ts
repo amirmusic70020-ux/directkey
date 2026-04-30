@@ -118,6 +118,12 @@ export const projectSchema = defineType({
       description: 'Pre-filled message when user taps WhatsApp',
       validation: (r) => r.required(),
     }),
+    defineField({
+      name: 'brochureUrl',
+      title: 'Brochure URL (PDF)',
+      type: 'url',
+      description: 'Direct link to PDF brochure — SARA sends this when customer asks',
+    }),
   ],
   preview: {
     select: { title: 'title', subtitle: 'location', media: 'images.0' },

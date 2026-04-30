@@ -19,7 +19,8 @@ const PROJECT_FIELDS = `
   "images": images[].asset->url,
   description,
   amenities,
-  whatsappText
+  whatsappText,
+  brochureUrl
 `;
 
 function mapProject(p: any): Project {
@@ -41,6 +42,7 @@ function mapProject(p: any): Project {
     description: p.description || '',
     amenities: p.amenities || [],
     whatsappText: p.whatsappText || '',
+    brochureUrl: p.brochureUrl || '',
   };
 }
 
