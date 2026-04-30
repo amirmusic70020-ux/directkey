@@ -97,9 +97,9 @@ async function processIncomingMessage(body: any) {
     return;
   }
 
-  const { response, needsHuman, crmUpdate, brochureProjectSlug } = saraResult;
+  const { response, needsHuman, crmUpdate, brochureProjectSlug, projectLinkSlug } = saraResult;
   console.log(`[SARA] Response to ${from}: "${response.slice(0, 80)}..."`);
-  console.log(`[SARA] Needs human: ${needsHuman}, Lead score: ${crmUpdate?.leadScore}, Brochure: ${brochureProjectSlug || 'none'}`);
+  console.log(`[SARA] Needs human: ${needsHuman}, Lead score: ${crmUpdate?.leadScore}, Brochure: ${brochureProjectSlug || 'none'}, Link: ${projectLinkSlug || 'none'}`);
 
   console.log(`[SARA] Sending reply to ${from} (length: ${response.length} chars)`);
   const sendResult = await sendWhatsAppMessage(from, response);
@@ -107,6 +107,22 @@ async function processIncomingMessage(body: any) {
     console.error('[SARA] FAILED to send WhatsApp message to', from, '-- error:', sendResult.error);
   } else {
     console.log('[SARA] WhatsApp reply sent successfully, messageId:', sendResult.messageId);
+  }
+
+  // ── Send project link if SARA requested it ───────────────────────────────
+  if (projectLinkSlug) {
+    try {
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://directkey.vercel.app';
+      const projectUrl = `${siteUrl}/en/projects/${projectLinkSlug}`;
+      const linkResult = await sendWhatsAppMessage(from, projectUrl);
+      if (linkResult.success) {
+        console.log(`[SARA] Project link sent for "${projectLinkSlug}" to ${from}`);
+      } else {
+        console.error('[SARA] Failed to send project link:', linkResult.error);
+      }
+    } catch (err: any) {
+      console.error('[SARA] Error sending project link:', err.message);
+    }
   }
 
   // ── Send brochure PDF if SARA requested it ────────────────────────────────

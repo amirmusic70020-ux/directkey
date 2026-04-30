@@ -39,6 +39,7 @@ export interface SaraResult {
   needsHuman: boolean;
   crmUpdate: CrmUpdate | null;
   brochureProjectSlug?: string;
+  projectLinkSlug?: string;
 }
 
 export interface CrmUpdate {
@@ -131,12 +132,17 @@ export async function callSARA(
   const brochureMatch = rawResponse.match(/\[SEND_BROCHURE:([^\]]+)\]/);
   const brochureProjectSlug = brochureMatch ? brochureMatch[1].trim() : undefined;
 
+  // Extract project link signal
+  const linkMatch = rawResponse.match(/\[SEND_LINK:([^\]]+)\]/);
+  const projectLinkSlug = linkMatch ? linkMatch[1].trim() : undefined;
+
   // 6. Clean response before sending to WhatsApp
   const cleanResponse = rawResponse
     .replace(/\[HUMAN_NEEDED\]/g, '')
     .replace(/\[NEEDS_HUMAN\]/g, '')
     .replace(/\[CRM\][\s\S]*?\[\/CRM\]/g, '')
     .replace(/\[SEND_BROCHURE:[^\]]*\]/g, '')
+    .replace(/\[SEND_LINK:[^\]]*\]/g, '')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 
@@ -145,6 +151,7 @@ export async function callSARA(
     needsHuman,
     crmUpdate,
     brochureProjectSlug,
+    projectLinkSlug,
   };
 }
 
@@ -276,6 +283,14 @@ ${projectsContext}
 - بودجه بالای ۵۰۰ هزار دلار و جدی باشه
 - مشتری ناراحت یا ناامید باشه
 
+
+## ارسال لینک پروژه (عکس‌ها)
+اگه مشتری خواست عکس، تصویر، گالری یا بیشتر ببینه:
+- لینک صفحه پروژه رو از طریق این سیگنال بفرست (برای مشتری نامرئیه):
+[SEND_LINK:slug-پروژه]
+- مثال: [SEND_LINK:sky-residence-istanbul]
+- در پیام به مشتری بگو: "لینک صفحه کامل پروژه رو برات فرستادم — عکس‌ها و اطلاعات کامل اونجاست"
+- فقط یه بار در هر درخواست لینک بفرست
 
 ## ارسال بروشور (PDF)
 اگه مشتری خواست بروشور، کاتالوگ، PDF یا اطلاعات تکمیلی درباره یه پروژه:
