@@ -6,8 +6,4 @@ export const metadata: Metadata = {
   description: 'SARA qualifies leads, answers questions, and books viewings automatically on WhatsApp — 24/7.',
 };
 
-// Root layout is intentionally minimal so that sub-layouts (locale, saas)
-// can control their own <html> / <body> wrappers for lang/dir/fonts.
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return <Providers>{children}</Providers>;
-}
+// Root layout is intentionally minimal so that sub-layouts (loc

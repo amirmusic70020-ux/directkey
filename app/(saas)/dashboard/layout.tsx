@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { Bot, LayoutDashboard, Settings, LogOut, Users, BarChart2 } from 'lucide-react';
+import { Bot, LayoutDashboard, Settings, LogOut, MessageCircle, Building2 } from 'lucide-react';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
@@ -12,7 +12,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const navItems = [
     { href: '/dashboard',          icon: LayoutDashboard, label: 'Dashboard' },
-    { href: '/dashboard/settings', icon: Settings,         label: 'Settings'  },
+    { href: '/dashboard/projects', icon: Building2,       label: 'Projects'  },
+    { href: '/dashboard/sara',     icon: MessageCircle,   label: 'SARA'      },
+    { href: '/dashboard/settings', icon: Settings,        label: 'Settings'  },
   ];
 
   return (
@@ -30,7 +32,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <div className="mt-3 px-1">
             <p className="text-white font-medium text-sm truncate">{user.name}</p>
             <span className="inline-block mt-1 text-xs px-2 py-0.5 bg-gold-500/10 text-gold-400 rounded-md capitalize">
-              {user.plan} plan
+              {user.plan || 'basic'} plan
             </span>
           </div>
         </div>
@@ -54,16 +56,4 @@ export default async function DashboardLayout({ children }: { children: React.Re
             className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm"
           >
             <LogOut size={16} />
-            Sign out
-          </Link>
-        </div>
-      </aside>
-
-      {/* Main */}
-      <main className="ml-60 flex-1 p-8">
-        {children}
-      </main>
-
-    </div>
-  );
-}
+     

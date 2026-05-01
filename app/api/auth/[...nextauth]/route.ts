@@ -1,10 +1,19 @@
 import NextAuth, { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import GoogleProvider from 'next-auth/providers/google';
 import bcrypt from 'bcryptjs';
 import { findAgencyByEmail } from '@/lib/agencies';
 
 export const authOptions: NextAuthOptions = {
   providers: [
+    // Google OAuth — needs GOOGLE_CLIENT_ID + GOOGLE_CLIENT_SECRET in env
+    ...(process.env.GOOGLE_CLIENT_ID ? [
+      GoogleProvider({
+        clientId:     process.env.GOOGLE_CLIENT_ID!,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      }),
+    ] : []),
+
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
@@ -27,7 +36,8 @@ export const authOptions: NextAuthOptions = {
           subdomain: agency.subdomain,
           plan:      agency.plan,
           status:    agency.status,
-        };
+          theme:     agency.theme,
+        } as any;
       },
     }),
   ],
@@ -35,31 +45,13 @@ export const authOptions: NextAuthOptions = {
   session: { strategy: 'jwt' },
 
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.agencyId  = user.id;
-        token.subdomain = (user as any).subdomain;
-        token.plan      = (user as any).plan;
-        token.status    = (user as any).status;
+    // Google sign-in: only allow if agency already exists (registered via email first)
+    async signIn({ account, user }) {
+      if (account?.provider === 'google') {
+        const agency = await findAgencyByEmail(user.email!);
+        if (!agency) {
+          // No account yet — redirect to register
+          return '/register?error=NoAccount';
+        }
       }
-      return token;
-    },
-    async session({ session, token }) {
-      (session.user as any).agencyId  = token.agencyId;
-      (session.user as any).subdomain = token.subdomain;
-      (session.user as any).plan      = token.plan;
-      (session.user as any).status    = token.status;
-      return session;
-    },
-  },
-
-  pages: {
-    signIn: '/login',
-    error:  '/login',
-  },
-
-  secret: process.env.NEXTAUTH_SECRET,
-};
-
-const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST };
+  

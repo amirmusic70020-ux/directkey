@@ -10,11 +10,9 @@ export async function POST(request: NextRequest) {
   const user = session.user as any;
 
   try {
-    const { name, phone, address, theme } = await request.json();
-    await updateAgency(user.agencyId, { name, phone, address, theme });
+    const { name, phone, address, theme, logo } = await request.json();
+    await updateAgency(user.agencyId, { name, phone, address, theme, logo });
     return NextResponse.json({ success: true });
   } catch (err: any) {
     console.error('[Settings] Error:', err.message);
-    return NextResponse.json({ error: 'Failed to save' }, { status: 500 });
-  }
-}
+    return NextResponse.json({ error: 'Failed to save' }, { status: 50

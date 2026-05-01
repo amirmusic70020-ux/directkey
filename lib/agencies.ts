@@ -4,7 +4,8 @@
  * Required Airtable table: Agencies
  * Fields: Name, Subdomain, Email, PasswordHash, Plan, Status,
  *         Logo (attachment), Theme, Phone, Address,
- *         StripeCustomerId, StripeSubscriptionId, AirtableBaseId
+ *         StripeCustomerId, StripeSubscriptionId, AirtableBaseId,
+ *         WhatsappPhoneId, WhatsappToken, LogoUrl
  */
 
 const API_KEY  = process.env.AIRTABLE_TOKEN!;
@@ -32,25 +33,29 @@ export type Agency = {
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
   airtableBaseId?: string;
+  whatsappPhoneId?: string;
+  whatsappToken?: string;
 };
 
 function mapRecord(record: any): Agency {
   const f = record.fields;
   return {
-    id: record.id,
-    name: f['Name'] ?? '',
-    subdomain: f['Subdomain'] ?? '',
-    email: f['Email'] ?? '',
-    passwordHash: f['PasswordHash'] ?? '',
-    plan: f['Plan'] ?? 'basic',
-    status: f['Status'] ?? 'pending',
-    logo: f['Logo']?.[0]?.url,
-    theme: f['Theme'] ?? 'blue',
-    phone: f['Phone'],
-    address: f['Address'],
-    stripeCustomerId: f['StripeCustomerId'],
+    id:                   record.id,
+    name:                 f['Name']                 ?? '',
+    subdomain:            f['Subdomain']            ?? '',
+    email:                f['Email']               ?? '',
+    passwordHash:         f['PasswordHash']         ?? '',
+    plan:                 f['Plan']                 ?? 'basic',
+    status:               f['Status']               ?? 'pending',
+    logo:                 f['LogoUrl']              || f['Logo']?.[0]?.url,
+    theme:                f['Theme']                ?? 'blue',
+    phone:                f['Phone'],
+    address:              f['Address'],
+    stripeCustomerId:     f['StripeCustomerId'],
     stripeSubscriptionId: f['StripeSubscriptionId'],
-    airtableBaseId: f['AirtableBaseId'],
+    airtableBaseId:       f['AirtableBaseId'],
+    whatsappPhoneId:      f['WhatsappPhoneId'],
+    whatsappToken:        f['WhatsappToken'],
   };
 }
 
@@ -90,12 +95,12 @@ export async function createAgency(data: {
     headers,
     body: JSON.stringify({
       fields: {
-        Name: data.name,
-        Subdomain: data.subdomain.toLowerCase(),
-        Email: data.email.toLowerCase(),
+        Name:         data.name,
+        Subdomain:    data.subdomain.toLowerCase(),
+        Email:        data.email.toLowerCase(),
         PasswordHash: data.passwordHash,
-        Plan: 'basic',
-        Theme: 'blue',
+        Plan:         'basic',
+        Theme:        'blue',
       },
     }),
   });
@@ -110,34 +115,21 @@ export async function createAgency(data: {
 export async function updateAgency(
   id: string,
   fields: Partial<{
-    name: string;
-    theme: string;
-    phone: string;
-    address: string;
-    logo: string;
-    plan: string;
-    status: string;
-    stripeCustomerId: string;
+    name:                 string;
+    theme:                string;
+    phone:                string;
+    address:              string;
+    logo:                 string;
+    plan:                 string;
+    status:               string;
+    stripeCustomerId:     string;
     stripeSubscriptionId: string;
-    airtableBaseId: string;
+    airtableBaseId:       string;
+    whatsappPhoneId:      string;
+    whatsappToken:        string;
   }>
 ): Promise<Agency> {
   const airtableFields: Record<string, any> = {};
-  if (fields.name)                   airtableFields['Name']                   = fields.name;
-  if (fields.theme)                  airtableFields['Theme']                  = fields.theme;
-  if (fields.phone !== undefined)    airtableFields['Phone']                  = fields.phone;
-  if (fields.address !== undefined)  airtableFields['Address']                = fields.address;
-  if (fields.plan)                   airtableFields['Plan']                   = fields.plan;
-  if (fields.status)                 airtableFields['Status']                 = fields.status;
-  if (fields.stripeCustomerId)       airtableFields['StripeCustomerId']       = fields.stripeCustomerId;
-  if (fields.stripeSubscriptionId)   airtableFields['StripeSubscriptionId']   = fields.stripeSubscriptionId;
-  if (fields.airtableBaseId)         airtableFields['AirtableBaseId']         = fields.airtableBaseId;
-
-  const res = await fetch(`${BASE_URL}/${id}`, {
-    method: 'PATCH',
-    headers,
-    body: JSON.stringify({ fields: airtableFields }),
-  });
-  if (!res.ok) throw new Error('Failed to update agency');
-  return mapRecord(await res.json());
-}
+  if (fields.name)                              airtableFields['Name']                   = fields.name;
+  if (fields.theme)                             airtableFields['Theme']                  = fields.theme;
+  if (fields.phone    !== undefined)            airtableFields['Phone']                  = fields.pho
