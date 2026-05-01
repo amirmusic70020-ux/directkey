@@ -27,8 +27,8 @@ const FACILITIES = [
   'BBQ Area', 'Jogging Track', 'Retail Outlets', 'Maids Room', 'Storage Room',
 ];
 
-/** Resize image client-side to max 800px, JPEG 85%. Returns base64 data URL. */
-function resizeImage(file: File, maxPx = 800): Promise<string> {
+/** Resize image client-side to max 400px, JPEG 75%. Returns base64 data URL (~30-50KB). */
+function resizeImage(file: File, maxPx = 400): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -40,7 +40,7 @@ function resizeImage(file: File, maxPx = 800): Promise<string> {
         canvas.height = Math.round(img.height * ratio);
         const ctx = canvas.getContext('2d')!;
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL('image/jpeg', 0.85));
+        resolve(canvas.toDataURL('image/jpeg', 0.75));
       };
       img.onerror = reject;
       img.src = e.target!.result as string;
