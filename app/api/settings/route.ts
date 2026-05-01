@@ -15,4 +15,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (err: any) {
     console.error('[Settings] Error:', err.message);
-    return NextResponse.json({ error: 'Failed to save' }, { status: 50
+    return NextResponse.json({ error: 'Failed to save' }, { status: 500 });
+  }
+}

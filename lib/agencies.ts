@@ -132,4 +132,26 @@ export async function updateAgency(
   const airtableFields: Record<string, any> = {};
   if (fields.name)                              airtableFields['Name']                   = fields.name;
   if (fields.theme)                             airtableFields['Theme']                  = fields.theme;
-  if (fields.phone    !== undefined)            airtableFields['Phone']                  = fields.pho
+  if (fields.phone    !== undefined)            airtableFields['Phone']                  = fields.phone;
+  if (fields.address  !== undefined)            airtableFields['Address']                = fields.address;
+  if (fields.logo     !== undefined)            airtableFields['LogoUrl']                = fields.logo;
+  if (fields.plan)                              airtableFields['Plan']                   = fields.plan;
+  if (fields.status)                            airtableFields['Status']                 = fields.status;
+  if (fields.stripeCustomerId)                  airtableFields['StripeCustomerId']       = fields.stripeCustomerId;
+  if (fields.stripeSubscriptionId)              airtableFields['StripeSubscriptionId']   = fields.stripeSubscriptionId;
+  if (fields.airtableBaseId)                    airtableFields['AirtableBaseId']         = fields.airtableBaseId;
+  if (fields.whatsappPhoneId !== undefined)     airtableFields['WhatsappPhoneId']        = fields.whatsappPhoneId;
+  if (fields.whatsappToken   !== undefined)     airtableFields['WhatsappToken']          = fields.whatsappToken;
+
+  const res = await fetch(`${BASE_URL}/${id}`, {
+    method: 'PATCH',
+    headers,
+    body: JSON.stringify({ fields: airtableFields }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    console.error('[updateAgency] Airtable error:', JSON.stringify(err));
+    throw new Error('Failed to update agency');
+  }
+  return mapRecord(await res.json());
+}

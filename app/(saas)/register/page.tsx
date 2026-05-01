@@ -136,4 +136,68 @@ export default function RegisterPage() {
               </div>
               {form.subdomain && (
                 <p className="text-xs text-gray-400 mt-1">
-                  Your site: <span className="text-navy-700 font-medium">{form.subdomain}.directke
+                  Your site: <span className="text-navy-700 font-medium">{form.subdomain}.directkey.app</span>
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-navy-900 mb-1.5">Email</label>
+              <input
+                name="email" type="email" value={form.email} onChange={handleChange} required
+                placeholder="you@agency.com"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-navy-500 text-sm"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-navy-900 mb-1.5">Password</label>
+              <input
+                name="password" type="password" value={form.password} onChange={handleChange}
+                required minLength={8} placeholder="Min. 8 characters"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-navy-500 text-sm"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-navy-900 mb-1.5">Confirm password</label>
+              <input
+                name="confirmPassword" type="password" value={form.confirmPassword}
+                onChange={handleChange} required placeholder="Repeat your password"
+                className={`w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-navy-500 text-sm ${
+                  form.confirmPassword && form.password !== form.confirmPassword
+                    ? 'border-red-300 bg-red-50'
+                    : 'border-gray-200'
+                }`}
+              />
+              {form.confirmPassword && form.password !== form.confirmPassword && (
+                <p className="text-xs text-red-500 mt-1">Passwords do not match</p>
+              )}
+            </div>
+
+            <button
+              type="submit" disabled={loading}
+              className="w-full bg-gold-500 hover:bg-gold-600 disabled:opacity-60 text-navy-950 font-semibold py-3 rounded-xl transition flex items-center justify-center gap-2 mt-2"
+            >
+              {loading && <Loader2 size={16} className="animate-spin" />}
+              {loading ? 'Creating account...' : 'Create free account'}
+            </button>
+
+            <p className="text-xs text-gray-400 text-center">
+              By registering you agree to our{' '}
+              <Link href="/terms" className="underline">Terms</Link> and{' '}
+              <Link href="/privacy" className="underline">Privacy Policy</Link>.
+            </p>
+          </form>
+        </div>
+
+        <p className="text-center text-sm text-gray-500 mt-6">
+          Already have an account?{' '}
+          <Link href="/login" className="text-navy-800 font-semibold hover:text-gold-600 transition">
+            Sign in
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+}

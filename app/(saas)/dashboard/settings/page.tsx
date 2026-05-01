@@ -159,4 +159,37 @@ export default function SettingsPage() {
         </div>
 
         {/* Your site link */}
-        <div className="bg-navy-50 rounde
+        <div className="bg-navy-50 rounded-2xl border border-navy-100 p-6">
+          <h2 className="font-semibold text-navy-900 mb-1">Your agency site</h2>
+          <p className="text-xs text-gray-500 mb-3">Share this link with your clients</p>
+          <div className="flex items-center gap-3">
+            <code className="flex-1 px-4 py-3 bg-white rounded-xl border border-gray-200 text-sm text-navy-800 font-mono">
+              {user?.subdomain}.directkey.app
+            </code>
+            <a
+              href={`https://${user?.subdomain}.directkey.app`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-3 bg-navy-900 text-white text-sm rounded-xl hover:bg-navy-800 transition font-medium"
+            >
+              <ExternalLink size={14} />
+              Visit
+            </a>
+          </div>
+        </div>
+
+        {error && <p className="text-red-600 text-sm">{error}</p>}
+
+        <button
+          type="submit"
+          disabled={saving}
+          className="flex items-center gap-2 bg-navy-900 hover:bg-navy-800 disabled:opacity-60 text-white font-semibold px-6 py-3 rounded-xl transition"
+        >
+          {saving ? <Loader2 size={16} className="animate-spin" /> : saved ? <Check size={16} /> : <Save size={16} />}
+          {saving ? 'Saving...' : saved ? 'Saved!' : 'Save changes'}
+        </button>
+
+      </form>
+    </div>
+  );
+}

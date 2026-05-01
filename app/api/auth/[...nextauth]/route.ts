@@ -54,4 +54,59 @@ export const authOptions: NextAuthOptions = {
           return '/register?error=NoAccount';
         }
       }
-  
+      return true;
+    },
+
+    async jwt({ token, user, account, trigger, session }) {
+      // Credentials login
+      if (user && account?.provider === 'credentials') {
+        token.agencyId  = (user as any).id;
+        token.subdomain = (user as any).subdomain;
+        token.plan      = (user as any).plan;
+        token.status    = (user as any).status;
+        token.theme     = (user as any).theme;
+      }
+
+      // Google login — look up agency by email
+      if (account?.provider === 'google') {
+        const agency = await findAgencyByEmail(token.email!);
+        if (agency) {
+          token.agencyId  = agency.id;
+          token.subdomain = agency.subdomain;
+          token.plan      = agency.plan;
+          token.status    = agency.status;
+          token.theme     = agency.theme;
+          token.name      = agency.name;
+        }
+      }
+
+      // Session update (called after settings save)
+      if (trigger === 'update' && session) {
+        if (session.name)  token.name  = session.name;
+        if (session.theme) token.theme = session.theme;
+      }
+
+      return token;
+    },
+
+    async session({ session, token }) {
+      const u = session.user as any;
+      u.agencyId  = token.agencyId;
+      u.subdomain = token.subdomain;
+      u.plan      = token.plan;
+      u.status    = token.status;
+      u.theme     = token.theme;
+      return session;
+    },
+  },
+
+  pages: {
+    signIn: '/login',
+    error:  '/login',
+  },
+
+  secret: process.env.NEXTAUTH_SECRET,
+};
+
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };

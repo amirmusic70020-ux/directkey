@@ -57,4 +57,7 @@ export default async function LocaleLayout({
           <Footer />
           <WhatsAppButton />
         </NextIntlClientProvider>
-      </
+      </body>
+    </html>
+  );
+}

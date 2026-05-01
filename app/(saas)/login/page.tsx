@@ -93,4 +93,47 @@ export default function LoginPage() {
               </div>
             )}
 
-      
+            <div>
+              <label className="block text-sm font-medium text-navy-900 mb-1.5">Email</label>
+              <input
+                type="email" value={email} onChange={e => setEmail(e.target.value)} required
+                placeholder="you@agency.com"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-navy-500 text-sm"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-navy-900 mb-1.5">Password</label>
+              <div className="relative">
+                <input
+                  type={show ? 'text' : 'password'} value={password}
+                  onChange={e => setPassword(e.target.value)} required placeholder="••••••••"
+                  className="w-full px-4 py-3 pr-11 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-navy-500 text-sm"
+                />
+                <button type="button" onClick={() => setShow(!show)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                  {show ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit" disabled={loading}
+              className="w-full bg-navy-900 hover:bg-navy-800 disabled:opacity-60 text-white font-semibold py-3 rounded-xl transition flex items-center justify-center gap-2"
+            >
+              {loading && <Loader2 size={16} className="animate-spin" />}
+              {loading ? 'Signing in...' : 'Sign in'}
+            </button>
+          </form>
+        </div>
+
+        <p className="text-center text-sm text-gray-500 mt-6">
+          Don&apos;t have an account?{' '}
+          <Link href="/register" className="text-navy-800 font-semibold hover:text-gold-600 transition">
+            Start free trial
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+}
