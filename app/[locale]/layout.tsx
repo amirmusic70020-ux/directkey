@@ -3,6 +3,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, unstable_setRequestLocale } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { headers } from 'next/headers';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import WhatsAppButton from '@/components/WhatsAppButton';
@@ -40,6 +41,9 @@ export default async function LocaleLayout({
   const messages = await getMessages();
   const isRTL = rtlLocales.includes(locale);
 
+  // On agency subdomains, skip the main DirectKey header/footer
+  const isSubdomain = !!headers().get('x-subdomain');
+
   return (
     <html lang={locale} dir={isRTL ? 'rtl' : 'ltr'}>
       <head>
@@ -52,10 +56,16 @@ export default async function LocaleLayout({
       </head>
       <body className="bg-gray-50 text-gray-900 antialiased">
         <NextIntlClientProvider messages={messages}>
-          <Header />
-          <main>{children}</main>
-          <Footer />
-          <WhatsAppButton />
+          {isSubdomain ? (
+            <main>{children}</main>
+          ) : (
+            <>
+              <Header />
+              <main>{children}</main>
+              <Footer />
+              <WhatsAppButton />
+            </>
+          )}
         </NextIntlClientProvider>
       </body>
     </html>
