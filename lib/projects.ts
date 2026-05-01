@@ -110,4 +110,70 @@ export async function createProject(data: Omit<Project, 'id'>): Promise<Project>
 
     if (!res.ok) {
       const fallbackErr = await res.json().catch(() => ({}));
-      
+      console.error('[createProject] fallback error:', JSON.stringify(fallbackErr));
+      throw new Error(`Airtable error: ${JSON.stringify(fallbackErr)}`);
+    }
+  }
+
+  return mapRecord(await res.json());
+}
+
+export async function updateProject(
+  id: string,
+  data: Partial<Omit<Project, 'id' | 'agencyId'>>
+): Promise<Project> {
+  const fields: Record<string, any> = {};
+  if (data.name        !== undefined) fields['Project Name'] = data.name;
+  if (data.description !== undefined) fields['Description']  = data.description;
+  if (data.price       !== undefined) fields['Price']        = data.price;
+  if (data.currency    !== undefined) fields['Currency']     = data.currency;
+  if (data.location    !== undefined) fields['Location']     = data.location;
+  if (data.type        !== undefined) fields['Type']         = data.type;
+  if (data.bedrooms    !== undefined) fields['Bedrooms']     = data.bedrooms;
+  if (data.area        !== undefined) fields['Area']         = data.area;
+  if (data.status      !== undefined) fields['Status']       = data.status;
+  // Only include Images in the main call (not Facilities — saved separately below)
+  if (data.images?.length) fields['Images'] = JSON.stringify(data.images);
+
+  let res = await fetch(`${BASE_URL}/${id}`, {
+    method: 'PATCH',
+    headers,
+    body: JSON.stringify({ fields }),
+  });
+
+  // If Airtable rejects extended fields (e.g. Images too large), retry with core fields only
+  if (!res.ok && res.status === 422) {
+    const coreFields = { ...fields };
+    delete coreFields['Images'];
+    res = await fetch(`${BASE_URL}/${id}`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({ fields: coreFields }),
+    });
+  }
+
+  if (!res.ok) throw new Error('Failed to update project');
+  const updated = mapRecord(await res.json());
+
+  // Save Facilities in a separate PATCH so a 422 on Images never drops it
+  if (data.facilities !== undefined) {
+    await fetch(`${BASE_URL}/${id}`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({ fields: { Facilities: data.facilities } }),
+    }).catch((err) => console.error('[updateProject] Facilities PATCH failed:', err));
+  }
+
+  return updated;
+}
+
+export async function getProjectById(id: string): Promise<Project | null> {
+  const res = await fetch(`${BASE_URL}/${id}`, { headers, cache: 'no-store' });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return mapRecord(data);
+}
+
+export async function deleteProject(id: string): Promise<void> {
+  await fetch(`${BASE_URL}/${id}`, { method: 'DELETE', headers });
+}
