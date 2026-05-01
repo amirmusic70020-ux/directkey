@@ -159,7 +159,7 @@ export async function updateProject(
 }
 
 export async function getProjectById(id: string): Promise<Project | null> {
-  const res = await fetch(`${BASE_URL}/${id}`, { headers });
+  const res = await fetch(`${BASE_URL}/${id}`, { headers, cache: 'no-store' });
   if (!res.ok) return null;
   const data = await res.json();
   return mapRecord(data);

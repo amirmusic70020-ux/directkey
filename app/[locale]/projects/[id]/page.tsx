@@ -9,7 +9,7 @@ import { unstable_setRequestLocale } from 'next-intl/server';
 import { getProjectBySlugFromSanity } from '@/sanity/queries';
 import ProjectDetail from './ProjectDetail';
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 export default async function ProjectDetailPage({
   params: { id, locale },
