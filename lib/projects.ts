@@ -27,8 +27,9 @@ export type Project = {
   bedrooms:    string;
   area:        string;
   status:      string;
-  imageUrl:    string;
-  facilities:  string;   // comma-separated list, e.g. "Pool,Gym,Parking"
+  imageUrl:    string;    // first image (thumbnail)
+  images:      string[];  // all images (Cloudinary URLs, stored as JSON in Airtable)
+  facilities:  string;    // comma-separated list, e.g. "Pool,Gym,Parking"
 };
 
 function mapRecord(r: any): Project {
@@ -45,8 +46,10 @@ function mapRecord(r: any): Project {
     bedrooms:    f['Bedrooms']    ?? '',
     area:        f['Area']        ?? '',
     status:      typeof f['Status'] === 'object' ? (f['Status']?.name ?? '') : (f['Status'] ?? 'Available'),
-    // Accept base64 from ImageData (Long Text) first, fall back to ImageUrl (URL field)
-    imageUrl:    f['ImageData']   ?? f['ImageUrl'] ?? '',
+    // Images: stored as JSON array in Airtable Long text field "Images"
+    images:      (() => { try { return JSON.parse(f['Images'] ?? '[]'); } catch { return []; } })(),
+    // imageUrl: first image for thumbnail, fallback to legacy ImageData/ImageUrl
+    imageUrl:    (() => { try { const arr = JSON.parse(f['Images'] ?? '[]'); return arr[0] ?? f['ImageData'] ?? f['ImageUrl'] ?? ''; } catch { return f['ImageData'] ?? f['ImageUrl'] ?? ''; } })(),
     facilities:  f['Facilities']  ?? '',
   };
 }
@@ -77,12 +80,12 @@ export async function createProject(data: Omit<Project, 'id'>): Promise<Project>
     Status:         data.status,
   };
 
-  // Extended fields — only add if non-empty (avoids rejection if field doesn't exist yet)
-  // ImageData = Long Text field for base64 images; Facilities = Long Text for amenities list
+  // Extended fields — only add if non-empty
+  const imagesJson = data.images?.length ? JSON.stringify(data.images) : '';
   const allFields = {
     ...coreFields,
-    ...(data.imageUrl   ? { ImageData:  data.imageUrl   } : {}),
-    ...(data.facilities ? { Facilities: data.facilities } : {}),
+    ...(imagesJson       ? { Images:     imagesJson       } : {}),
+    ...(data.facilities  ? { Facilities: data.facilities  } : {}),
   };
 
   let res = await fetch(BASE_URL, {
@@ -97,7 +100,7 @@ export async function createProject(data: Omit<Project, 'id'>): Promise<Project>
     console.error('[createProject] Airtable error:', JSON.stringify(errBody));
 
     if (res.status === 422) {
-      // Retry with core fields only — extended fields don't exist in Airtable yet
+      // Retry with core fields only — Images/Facilities fields may not exist yet
       res = await fetch(BASE_URL, {
         method: 'POST',
         headers,
@@ -129,9 +132,9 @@ export async function updateProject(
   if (data.bedrooms    !== undefined) fields['Bedrooms']     = data.bedrooms;
   if (data.area        !== undefined) fields['Area']         = data.area;
   if (data.status      !== undefined) fields['Status']       = data.status;
-  // Only include extended fields if they have values (avoids rejection if field missing in Airtable)
-  if (data.imageUrl)   fields['ImageData']  = data.imageUrl;   // Long Text field for base64
-  if (data.facilities) fields['Facilities'] = data.facilities; // Long Text field
+  // Only include extended fields if they have values
+  if (data.images?.length) fields['Images']     = JSON.stringify(data.images);
+  if (data.facilities)     fields['Facilities'] = data.facilities;
 
   let res = await fetch(`${BASE_URL}/${id}`, {
     method: 'PATCH',
@@ -142,7 +145,7 @@ export async function updateProject(
   // If Airtable rejects extended fields, retry with core fields only
   if (!res.ok && res.status === 422) {
     const coreFields = { ...fields };
-    delete coreFields['ImageData'];
+    delete coreFields['Images'];
     delete coreFields['Facilities'];
     res = await fetch(`${BASE_URL}/${id}`, {
       method: 'PATCH',
@@ -153,6 +156,13 @@ export async function updateProject(
 
   if (!res.ok) throw new Error('Failed to update project');
   return mapRecord(await res.json());
+}
+
+export async function getProjectById(id: string): Promise<Project | null> {
+  const res = await fetch(`${BASE_URL}/${id}`, { headers });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return mapRecord(data);
 }
 
 export async function deleteProject(id: string): Promise<void> {

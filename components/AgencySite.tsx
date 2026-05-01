@@ -4,7 +4,7 @@
  * Lives inside the [locale] layout so html/body structure is correct.
  */
 
-import { Building2, MessageCircle, MapPin, BedDouble, Maximize2, Phone, Mail, ExternalLink, Bot, Waves, Dumbbell, Car, Shield, Sparkles, Baby, Umbrella, Eye, Leaf, Wind, Cpu, Thermometer, Trophy } from 'lucide-react';
+import { Building2, MessageCircle, MapPin, BedDouble, Maximize2, Phone, Mail, ExternalLink, Bot, Waves, Dumbbell, Car, Shield, Sparkles, Baby, Umbrella, Eye, Leaf, Wind, Cpu, Thermometer, Trophy, ArrowRight } from 'lucide-react';
 import type { Agency } from '@/lib/agencies';
 import type { Project } from '@/lib/projects';
 
@@ -58,7 +58,7 @@ function formatPrice(price: string, currency: string) {
   }).format(num);
 }
 
-function AgencyProjectCard({ project, accent, waNumber }: { project: Project; accent: string; waNumber: string }) {
+function AgencyProjectCard({ project, accent }: { project: Project; accent: string }) {
   const status = statusColor(project.status);
   const price  = formatPrice(project.price, project.currency);
   const facilityList = project.facilities
@@ -145,18 +145,9 @@ function AgencyProjectCard({ project, accent, waNumber }: { project: Project; ac
           ) : (
             <p className="text-sm text-gray-400">Price on request</p>
           )}
-          {waNumber && (
-            <a
-              href={`https://wa.me/${waNumber}?text=${encodeURIComponent(`Hi, I'm interested in ${project.name}`)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl text-white transition-opacity hover:opacity-90"
-              style={{ backgroundColor: '#25D366' }}
-            >
-              <MessageCircle size={15} />
-              Enquire
-            </a>
-          )}
+          <span className="flex items-center gap-1.5 text-sm font-semibold text-gray-400 group-hover:text-gray-700 transition-colors">
+            View details <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+          </span>
         </div>
       </div>
     </div>
@@ -266,7 +257,14 @@ export default function AgencySite({ agency, projects }: Props) {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {ordered.map(p => (
-                <AgencyProjectCard key={p.id} project={p} accent={theme.accent} waNumber={waNumber} />
+                <a
+                  key={p.id}
+                  href={`/projects/${p.id}`}
+                  className="block group focus:outline-none focus-visible:ring-2 rounded-2xl"
+                  style={{ textDecoration: 'none' }}
+                >
+                  <AgencyProjectCard project={p} accent={theme.accent} />
+                </a>
               ))}
             </div>
           </>

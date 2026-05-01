@@ -23,7 +23,8 @@
     "@vercel/functions": "^1.0.0",
     "next-auth": "^4.24.7",
     "bcryptjs": "^2.4.3",
-    "stripe": "^14.21.0"
+    "stripe": "^14.21.0",
+    "cloudinary": "^2.4.0"
   },
   "devDependencies": {
     "typescript": "^5.4.5",
