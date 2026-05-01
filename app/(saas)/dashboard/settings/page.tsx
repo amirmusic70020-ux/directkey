@@ -115,7 +115,8 @@ export default function SettingsPage() {
       return;
     }
 
-    await update({ name: form.name, theme: form.theme, logo: form.logo });
+    // Only update small fields in JWT — logo is base64 and would overflow the cookie
+    await update({ name: form.name, theme: form.theme });
 
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
