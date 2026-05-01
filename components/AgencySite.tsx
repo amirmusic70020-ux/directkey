@@ -59,18 +59,17 @@ function formatPrice(price: string, currency: string) {
 }
 
 function AgencyProjectCard({ project, accent }: { project: Project; accent: string }) {
-  const status = statusColor(project.status);
-  const price  = formatPrice(project.price, project.currency);
-  const facilityList = project.facilities
-    ? project.facilities.split(',').map(s => s.trim()).filter(Boolean)
-    : [];
-  const topFacilities = facilityList.slice(0, 3);
-  const extraCount    = facilityList.length - 3;
+  const price = formatPrice(project.price, project.currency);
+  const status = project.status;
+  const statusBadgeStyle =
+    status.toLowerCase() === 'available' ? { bg: '#dcfce7', text: '#15803d' } :
+    status.toLowerCase() === 'reserved'  ? { bg: '#fef9c3', text: '#a16207' } :
+                                           { bg: '#fee2e2', text: '#b91c1c' };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col">
+    <div className="bg-white rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col border border-gray-100">
       {/* Image */}
-      <div className="h-56 bg-gray-100 relative overflow-hidden flex-shrink-0">
+      <div className="h-60 bg-gray-100 relative overflow-hidden flex-shrink-0">
         {project.imageUrl ? (
           <img
             src={project.imageUrl}
@@ -82,84 +81,55 @@ function AgencyProjectCard({ project, accent }: { project: Project; accent: stri
             <Building2 size={40} className="text-gray-300" />
           </div>
         )}
-        {/* Gradient overlay at bottom */}
-        <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/40 to-transparent" />
-        {/* Status badge */}
-        <div
-          className="absolute top-3 right-3 text-xs font-semibold px-3 py-1 rounded-full shadow-sm"
-          style={{ backgroundColor: status.bg, color: status.text }}
-        >
-          {project.status}
-        </div>
-        {/* Type badge */}
+        {/* Type badge — left */}
         {project.type && (
-          <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1 rounded-full">
+          <span className="absolute top-3 left-3 text-xs font-semibold px-3 py-1 rounded-lg"
+            style={{ backgroundColor: accent, color: '#fff' }}>
             {project.type}
-          </div>
+          </span>
         )}
-        {/* Price overlay */}
-        {price && (
-          <div className="absolute bottom-3 left-4">
-            <p className="text-white font-bold text-xl drop-shadow-md">{price}</p>
-          </div>
-        )}
+        {/* Status badge — right */}
+        <span className="absolute top-3 right-3 text-xs font-semibold px-3 py-1 rounded-lg"
+          style={{ backgroundColor: statusBadgeStyle.bg, color: statusBadgeStyle.text }}>
+          {status}
+        </span>
       </div>
 
-      {/* Content */}
+      {/* Info */}
       <div className="p-5 flex flex-col flex-1">
-        {/* Name + location */}
-        <h3 className="font-bold text-gray-900 text-lg leading-snug mb-1">{project.name}</h3>
         {project.location && (
-          <p className="text-gray-400 text-sm flex items-center gap-1 mb-3">
-            <MapPin size={12} /> {project.location}
+          <p className="text-gray-400 text-xs flex items-center gap-1 mb-1">
+            <MapPin size={11} /> {project.location}
           </p>
         )}
+        <h3 className="font-bold text-gray-900 text-lg leading-snug mb-2">{project.name}</h3>
 
-        {/* Stats row */}
-        <div className="flex gap-3 mb-4">
+        {/* Price */}
+        {price ? (
+          <p className="text-lg font-bold mb-3" style={{ color: accent }}>{price}</p>
+        ) : (
+          <p className="text-sm text-gray-400 mb-3">Price on request</p>
+        )}
+
+        {/* Beds + Area */}
+        <div className="flex items-center gap-4 text-sm text-gray-500 mb-5">
           {project.bedrooms && (
-            <div className="flex items-center gap-1.5 bg-gray-50 rounded-lg px-3 py-1.5 text-xs text-gray-600 font-medium">
-              <BedDouble size={12} />
-              {project.bedrooms} bed{parseInt(project.bedrooms) !== 1 ? 's' : ''}
-            </div>
+            <span className="flex items-center gap-1.5">
+              <BedDouble size={14} />
+              {project.bedrooms} Bed{parseInt(project.bedrooms) !== 1 ? 's' : ''}
+            </span>
           )}
           {project.area && (
-            <div className="flex items-center gap-1.5 bg-gray-50 rounded-lg px-3 py-1.5 text-xs text-gray-600 font-medium">
-              <Maximize2 size={12} />
+            <span className="flex items-center gap-1.5">
+              <Maximize2 size={14} />
               {project.area} m²
-            </div>
+            </span>
           )}
         </div>
 
-        {/* Top 3 facilities */}
-        {topFacilities.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mb-4">
-            {topFacilities.map(fac => {
-              const Icon = FACILITY_ICONS[fac];
-              return (
-                <span
-                  key={fac}
-                  className="flex items-center gap-1 text-[11px] font-medium px-2.5 py-1 rounded-lg bg-gray-50 text-gray-500 border border-gray-100"
-                >
-                  {Icon && <Icon size={10} />}
-                  {fac}
-                </span>
-              );
-            })}
-            {extraCount > 0 && (
-              <span className="text-[11px] font-medium px-2.5 py-1 rounded-lg bg-gray-50 text-gray-400 border border-gray-100">
-                +{extraCount} more
-              </span>
-            )}
-          </div>
-        )}
-
-        {/* CTA button */}
-        <div className="mt-auto pt-3 border-t border-gray-50">
-          <div
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity group-hover:opacity-90"
-            style={{ backgroundColor: accent }}
-          >
+        {/* CTA */}
+        <div className="mt-auto">
+          <div className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold text-white bg-gray-900 group-hover:bg-gray-700 transition-colors">
             View Details <ArrowRight size={14} />
           </div>
         </div>
