@@ -64,10 +64,13 @@ function AgencyProjectCard({ project, accent }: { project: Project; accent: stri
   const facilityList = project.facilities
     ? project.facilities.split(',').map(s => s.trim()).filter(Boolean)
     : [];
+  const topFacilities = facilityList.slice(0, 3);
+  const extraCount    = facilityList.length - 3;
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow group">
-      <div className="h-52 bg-gray-100 relative overflow-hidden">
+    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col">
+      {/* Image */}
+      <div className="h-56 bg-gray-100 relative overflow-hidden flex-shrink-0">
         {project.imageUrl ? (
           <img
             src={project.imageUrl}
@@ -79,75 +82,86 @@ function AgencyProjectCard({ project, accent }: { project: Project; accent: stri
             <Building2 size={40} className="text-gray-300" />
           </div>
         )}
+        {/* Gradient overlay at bottom */}
+        <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/40 to-transparent" />
+        {/* Status badge */}
         <div
-          className="absolute top-3 right-3 text-xs font-semibold px-3 py-1 rounded-full"
+          className="absolute top-3 right-3 text-xs font-semibold px-3 py-1 rounded-full shadow-sm"
           style={{ backgroundColor: status.bg, color: status.text }}
         >
           {project.status}
         </div>
+        {/* Type badge */}
         {project.type && (
-          <div className="absolute top-3 left-3 bg-black/50 text-white text-xs font-medium px-2.5 py-1 rounded-full">
+          <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1 rounded-full">
             {project.type}
+          </div>
+        )}
+        {/* Price overlay */}
+        {price && (
+          <div className="absolute bottom-3 left-4">
+            <p className="text-white font-bold text-xl drop-shadow-md">{price}</p>
           </div>
         )}
       </div>
 
-      <div className="p-5">
-        <h3 className="font-bold text-gray-900 text-lg mb-1 leading-snug">{project.name}</h3>
+      {/* Content */}
+      <div className="p-5 flex flex-col flex-1">
+        {/* Name + location */}
+        <h3 className="font-bold text-gray-900 text-lg leading-snug mb-1">{project.name}</h3>
         {project.location && (
-          <p className="text-gray-500 text-sm flex items-center gap-1 mb-3">
-            <MapPin size={13} /> {project.location}
+          <p className="text-gray-400 text-sm flex items-center gap-1 mb-3">
+            <MapPin size={12} /> {project.location}
           </p>
         )}
-        <div className="flex gap-4 mb-4">
+
+        {/* Stats row */}
+        <div className="flex gap-3 mb-4">
           {project.bedrooms && (
-            <div className="flex items-center gap-1.5 text-xs text-gray-500">
-              <BedDouble size={13} />
+            <div className="flex items-center gap-1.5 bg-gray-50 rounded-lg px-3 py-1.5 text-xs text-gray-600 font-medium">
+              <BedDouble size={12} />
               {project.bedrooms} bed{parseInt(project.bedrooms) !== 1 ? 's' : ''}
             </div>
           )}
           {project.area && (
-            <div className="flex items-center gap-1.5 text-xs text-gray-500">
-              <Maximize2 size={13} />
+            <div className="flex items-center gap-1.5 bg-gray-50 rounded-lg px-3 py-1.5 text-xs text-gray-600 font-medium">
+              <Maximize2 size={12} />
               {project.area} m²
             </div>
           )}
         </div>
-        {project.description && (
-          <p className="text-gray-500 text-sm leading-relaxed mb-4 line-clamp-2">
-            {project.description}
-          </p>
-        )}
-        {facilityList.length > 0 && (
+
+        {/* Top 3 facilities */}
+        {topFacilities.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-4">
-            {facilityList.slice(0, 6).map(fac => {
+            {topFacilities.map(fac => {
               const Icon = FACILITY_ICONS[fac];
               return (
                 <span
                   key={fac}
-                  className="flex items-center gap-1 text-[11px] font-medium px-2 py-1 rounded-lg bg-gray-50 text-gray-600 border border-gray-100"
+                  className="flex items-center gap-1 text-[11px] font-medium px-2.5 py-1 rounded-lg bg-gray-50 text-gray-500 border border-gray-100"
                 >
                   {Icon && <Icon size={10} />}
                   {fac}
                 </span>
               );
             })}
-            {facilityList.length > 6 && (
-              <span className="text-[11px] font-medium px-2 py-1 rounded-lg bg-gray-50 text-gray-400 border border-gray-100">
-                +{facilityList.length - 6}
+            {extraCount > 0 && (
+              <span className="text-[11px] font-medium px-2.5 py-1 rounded-lg bg-gray-50 text-gray-400 border border-gray-100">
+                +{extraCount} more
               </span>
             )}
           </div>
         )}
-        <div className="flex items-center justify-between pt-3 border-t border-gray-50">
-          {price ? (
-            <p className="font-bold text-gray-900 text-lg">{price}</p>
-          ) : (
-            <p className="text-sm text-gray-400">Price on request</p>
-          )}
-          <span className="flex items-center gap-1.5 text-sm font-semibold text-gray-400 group-hover:text-gray-700 transition-colors">
-            View details <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
-          </span>
+
+        {/* CTA button */}
+        <div className="mt-auto pt-3 border-t border-gray-50">
+          <div
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity group-hover:opacity-90"
+            style={{ backgroundColor: accent }}
+          >
+            View Details <ArrowRight size={14} />
+          </div>
         </div>
       </div>
     </div>
