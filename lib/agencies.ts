@@ -30,6 +30,8 @@ export type Agency = {
   theme: string;
   phone?: string;
   address?: string;
+  contactEmail?: string;
+  description?: string;
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
   airtableBaseId?: string;
@@ -51,6 +53,8 @@ function mapRecord(record: any): Agency {
     theme:                f['Theme']                ?? 'blue',
     phone:                f['Phone'],
     address:              f['Address'],
+    contactEmail:         f['ContactEmail'],
+    description:          f['Description'],
     stripeCustomerId:     f['StripeCustomerId'],
     stripeSubscriptionId: f['StripeSubscriptionId'],
     airtableBaseId:       f['AirtableBaseId'],
@@ -128,6 +132,8 @@ export async function updateAgency(
     theme:                string;
     phone:                string;
     address:              string;
+    contactEmail:         string;
+    description:          string;
     logo:                 string;
     plan:                 string;
     status:               string;
@@ -141,8 +147,10 @@ export async function updateAgency(
   const airtableFields: Record<string, any> = {};
   if (fields.name)                              airtableFields['Name']                   = fields.name;
   if (fields.theme)                             airtableFields['Theme']                  = fields.theme;
-  if (fields.phone    !== undefined)            airtableFields['Phone']                  = fields.phone;
-  if (fields.address  !== undefined)            airtableFields['Address']                = fields.address;
+  if (fields.phone        !== undefined)        airtableFields['Phone']                  = fields.phone;
+  if (fields.address      !== undefined)        airtableFields['Address']                = fields.address;
+  if (fields.contactEmail !== undefined)        airtableFields['ContactEmail']           = fields.contactEmail;
+  if (fields.description  !== undefined)        airtableFields['Description']            = fields.description;
   // Logo can be a base64 data URL — requires LogoUrl to be Long Text type in Airtable
   if (fields.logo     !== undefined)            airtableFields['LogoUrl']                = fields.logo;
   if (fields.plan)                              airtableFields['Plan']                   = fields.plan;

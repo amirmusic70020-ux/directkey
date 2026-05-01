@@ -51,11 +51,13 @@ export default function SettingsPage() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [form, setForm] = useState({
-    name:    '',
-    phone:   '',
-    address: '',
-    theme:   'blue',
-    logo:    '',
+    name:         '',
+    phone:        '',
+    address:      '',
+    contactEmail: '',
+    description:  '',
+    theme:        'blue',
+    logo:         '',
   });
   const [saved,      setSaved]      = useState(false);
   const [saving,     setSaving]     = useState(false);
@@ -70,11 +72,13 @@ export default function SettingsPage() {
       .then(data => {
         if (data.error) return;
         setForm({
-          name:    data.name    || '',
-          phone:   data.phone   || '',
-          address: data.address || '',
-          theme:   data.theme   || 'blue',
-          logo:    data.logo    || '',
+          name:         data.name         || '',
+          phone:        data.phone        || '',
+          address:      data.address      || '',
+          contactEmail: data.contactEmail || '',
+          description:  data.description  || '',
+          theme:        data.theme        || 'blue',
+          logo:         data.logo         || '',
         });
       })
       .catch(console.error);
@@ -92,7 +96,7 @@ export default function SettingsPage() {
     setUploading(true);
     setError('');
     try {
-      const dataUrl = await resizeImage(file, 300);
+      const dataUrl = await resizeImage(file);
       setForm(p => ({ ...p, logo: dataUrl }));
     } catch {
       setError('Failed to process image — try a different file.');
@@ -162,7 +166,26 @@ export default function SettingsPage() {
               <input
                 value={form.address}
                 onChange={e => setForm(p => ({ ...p, address: e.target.value }))}
-                placeholder="Dubai Marina, UAE"
+                placeholder="Istanbul, Turkey"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-navy-500 text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-navy-900 mb-1.5">Contact email <span className="text-gray-400 font-normal">(shown on site)</span></label>
+              <input
+                type="email"
+                value={form.contactEmail}
+                onChange={e => setForm(p => ({ ...p, contactEmail: e.target.value }))}
+                placeholder="info@youragency.com"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-navy-500 text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-navy-900 mb-1.5">Agency tagline <span className="text-gray-400 font-normal">(shown in hero)</span></label>
+              <input
+                value={form.description}
+                onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
+                placeholder="Premium real estate in Turkey's finest locations"
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-navy-500 text-sm"
               />
             </div>

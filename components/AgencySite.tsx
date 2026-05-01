@@ -4,7 +4,7 @@
  * Lives inside the [locale] layout so html/body structure is correct.
  */
 
-import { Building2, MessageCircle, MapPin, BedDouble, Maximize2, Phone, Mail, ExternalLink, Bot, Waves, Dumbbell, Car, Shield, Sparkles, Baby, Umbrella, Eye, Leaf, Wind, Cpu, Thermometer, Trophy, ArrowRight } from 'lucide-react';
+import { Building2, MessageCircle, MapPin, BedDouble, Maximize2, Phone, Mail, ExternalLink, Bot, Waves, Dumbbell, Car, Shield, Sparkles, Baby, Umbrella, Eye, Leaf, Wind, Cpu, Thermometer, Trophy, ArrowRight, Search, CalendarCheck, KeyRound } from 'lucide-react';
 import type { Agency } from '@/lib/agencies';
 import type { Project } from '@/lib/projects';
 
@@ -196,32 +196,95 @@ export default function AgencySite({ agency, projects }: Props) {
           )}
         </div>
 
-        <div className="relative z-10 max-w-6xl mx-auto px-5 pt-12 pb-20">
-          <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: theme.accent }}>
+        {/* Hero content */}
+        <div className="relative z-10 max-w-6xl mx-auto px-5 pt-14 pb-24">
+          <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: theme.accent }}>
             Real Estate Agency
           </p>
-          <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4 leading-tight">{agency.name}</h1>
-          {agency.address && (
-            <p className="text-gray-400 flex items-center gap-2 text-sm">
-              <MapPin size={14} /> {agency.address}
+          <h1 className="text-4xl sm:text-6xl font-bold text-white mb-5 leading-tight max-w-2xl">
+            {agency.name}
+          </h1>
+          {agency.description && (
+            <p className="text-gray-300 text-lg mb-8 max-w-xl leading-relaxed">
+              {agency.description}
             </p>
           )}
-          <div className="flex gap-6 mt-8">
+          {!agency.description && (
+            <p className="text-gray-300 text-lg mb-8 max-w-xl leading-relaxed">
+              Premium properties in Turkey's most desirable locations.
+            </p>
+          )}
+          <div className="flex flex-wrap gap-3">
+            <a href="#properties"
+              className="flex items-center gap-2 font-semibold text-sm px-6 py-3 rounded-xl transition"
+              style={{ backgroundColor: theme.accent, color: '#fff' }}>
+              Explore Properties <ArrowRight size={15} />
+            </a>
+            {waNumber && (
+              <a href={`https://wa.me/${waNumber}`} target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold text-sm px-6 py-3 rounded-xl transition backdrop-blur-sm">
+                <MessageCircle size={15} /> Talk to Us
+              </a>
+            )}
+          </div>
+
+          {/* Stats */}
+          <div className="flex gap-8 mt-12 pt-8 border-t border-white/10">
             <div>
-              <p className="text-white font-bold text-2xl">{projects.length}</p>
-              <p className="text-gray-400 text-xs">Listings</p>
+              <p className="text-white font-bold text-3xl">{projects.length}</p>
+              <p className="text-gray-400 text-xs mt-0.5">Total Listings</p>
             </div>
             <div className="w-px bg-white/10" />
             <div>
-              <p className="text-white font-bold text-2xl">{available.length}</p>
-              <p className="text-gray-400 text-xs">Available now</p>
+              <p className="text-white font-bold text-3xl">{available.length}</p>
+              <p className="text-gray-400 text-xs mt-0.5">Available Now</p>
             </div>
+            {agency.address && (
+              <>
+                <div className="w-px bg-white/10" />
+                <div className="flex items-center gap-2 text-gray-400 text-sm">
+                  <MapPin size={14} style={{ color: theme.accent }} />
+                  {agency.address}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </header>
 
-      {/* Projects */}
-      <main className="max-w-6xl mx-auto px-5 py-14">
+      {/* How it works */}
+      <section className="bg-white py-16 border-b border-gray-100">
+        <div className="max-w-6xl mx-auto px-5">
+          <div className="text-center mb-12">
+            <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: theme.accent }}>Simple Process</p>
+            <h2 className="text-3xl font-bold text-gray-900">How to Buy in 3 Steps</h2>
+            <p className="text-gray-400 text-sm mt-2">We guide you from search to keys — with full transparency</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+            {[
+              { icon: Search,       step: '01', title: 'Browse & Choose',    desc: 'Explore our curated listings and shortlist the properties that match your needs and budget.' },
+              { icon: CalendarCheck, step: '02', title: 'Book a Consultation', desc: 'Speak with our experts via WhatsApp or call. We answer every question and arrange viewings.' },
+              { icon: KeyRound,     step: '03', title: 'Close & Move In',    desc: 'We handle all paperwork, legal checks, and title deed transfer. You just sign and get your keys.' },
+            ].map(({ icon: Icon, step, title, desc }) => (
+              <div key={step} className="relative text-center px-4">
+                <div className="w-16 h-16 rounded-2xl mx-auto mb-5 flex items-center justify-center"
+                  style={{ backgroundColor: `${theme.accent}15` }}>
+                  <Icon size={28} style={{ color: theme.accent }} />
+                </div>
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 text-[11px] font-bold px-2 py-0.5 rounded-full"
+                  style={{ backgroundColor: theme.accent, color: '#fff' }}>
+                  {step}
+                </div>
+                <h3 className="font-bold text-gray-900 text-lg mb-2">{title}</h3>
+                <p className="text-gray-500 text-sm leading-relaxed">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Properties */}
+      <main id="properties" className="max-w-6xl mx-auto px-5 py-14">
         {ordered.length === 0 ? (
           <div className="text-center py-24 text-gray-400">
             <Building2 size={40} className="mx-auto mb-4 opacity-30" />
@@ -231,7 +294,10 @@ export default function AgencySite({ agency, projects }: Props) {
         ) : (
           <>
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-bold text-gray-900">Our Properties</h2>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Our Properties</h2>
+                <p className="text-gray-400 text-sm mt-0.5">Click any property to see full details</p>
+              </div>
               <span
                 className="text-sm font-medium px-3 py-1 rounded-full"
                 style={{ backgroundColor: theme.badge, color: theme.accent }}
@@ -255,29 +321,50 @@ export default function AgencySite({ agency, projects }: Props) {
         )}
       </main>
 
+      {/* CTA banner */}
+      {waNumber && (
+        <section style={{ backgroundColor: theme.bg }} className="py-14">
+          <div className="max-w-2xl mx-auto px-5 text-center">
+            <h2 className="text-2xl font-bold text-white mb-3">Ready to find your property?</h2>
+            <p className="text-gray-400 text-sm mb-7">Our team is available to answer your questions and arrange viewings.</p>
+            <a
+              href={`https://wa.me/${waNumber}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold px-8 py-4 rounded-2xl transition text-sm"
+            >
+              <MessageCircle size={18} /> Chat on WhatsApp
+            </a>
+          </div>
+        </section>
+      )}
+
       {/* Footer */}
-      <footer style={{ backgroundColor: theme.bg }} className="py-10">
+      <footer style={{ backgroundColor: theme.bg }} className="py-10 border-t border-white/5">
         <div className="max-w-6xl mx-auto px-5">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
             <div>
-              <p className="text-white font-bold mb-1">{agency.name}</p>
-              {agency.address && <p className="text-gray-400 text-sm">{agency.address}</p>}
+              {agency.logo ? (
+                <img src={agency.logo} alt={agency.name} className="h-8 object-contain mb-2 opacity-80" />
+              ) : null}
+              <p className="text-white font-bold">{agency.name}</p>
+              {agency.address && <p className="text-gray-500 text-sm mt-0.5">{agency.address}</p>}
             </div>
             <div className="flex flex-col sm:items-end gap-2">
               {agency.phone && (
                 <a href={`tel:${agency.phone}`} className="flex items-center gap-2 text-gray-400 hover:text-white text-sm transition">
-                  <Phone size={14} /> {agency.phone}
+                  <Phone size={13} /> {agency.phone}
                 </a>
               )}
-              {agency.email && (
-                <a href={`mailto:${agency.email}`} className="flex items-center gap-2 text-gray-400 hover:text-white text-sm transition">
-                  <Mail size={14} /> {agency.email}
+              {(agency.contactEmail || agency.email) && (
+                <a href={`mailto:${agency.contactEmail || agency.email}`} className="flex items-center gap-2 text-gray-400 hover:text-white text-sm transition">
+                  <Mail size={13} /> {agency.contactEmail || agency.email}
                 </a>
               )}
             </div>
           </div>
           <div className="border-t border-white/10 mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p className="text-gray-500 text-xs">© {new Date().getFullYear()} {agency.name}. All rights reserved.</p>
+            <p className="text-gray-600 text-xs">© {new Date().getFullYear()} {agency.name}. All rights reserved.</p>
             <a
               href="https://directkey.app"
               target="_blank"

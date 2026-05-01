@@ -13,11 +13,13 @@ export async function GET() {
   if (!agency) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   return NextResponse.json({
-    name:    agency.name    || '',
-    phone:   agency.phone   || '',
-    address: agency.address || '',
-    theme:   agency.theme   || 'blue',
-    logo:    agency.logo    || '',
+    name:         agency.name         || '',
+    phone:        agency.phone        || '',
+    address:      agency.address      || '',
+    contactEmail: agency.contactEmail || '',
+    description:  agency.description  || '',
+    theme:        agency.theme        || 'blue',
+    logo:         agency.logo         || '',
   });
 }
 
@@ -29,8 +31,8 @@ export async function POST(request: NextRequest) {
   const user = session.user as any;
 
   try {
-    const { name, phone, address, theme, logo } = await request.json();
-    await updateAgency(user.agencyId, { name, phone, address, theme, logo });
+    const { name, phone, address, contactEmail, description, theme, logo } = await request.json();
+    await updateAgency(user.agencyId, { name, phone, address, contactEmail, description, theme, logo });
     return NextResponse.json({ success: true });
   } catch (err: any) {
     console.error('[Settings] Error:', err.message);
