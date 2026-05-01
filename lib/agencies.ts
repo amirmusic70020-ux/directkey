@@ -7,7 +7,7 @@
  *         StripeCustomerId, StripeSubscriptionId, AirtableBaseId
  */
 
-const API_KEY  = process.env.AIRTABLE_API_KEY!;
+const API_KEY  = process.env.AIRTABLE_TOKEN!;
 const BASE_ID  = process.env.AIRTABLE_BASE_ID!;
 const TABLE    = 'Agencies';
 const BASE_URL = `https://api.airtable.com/v0/${BASE_ID}/${TABLE}`;

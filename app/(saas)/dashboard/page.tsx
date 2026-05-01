@@ -5,7 +5,7 @@ import { Users, MessageSquare, TrendingUp, Clock } from 'lucide-react';
 
 async function getLeads(agencyId: string) {
   try {
-    const apiKey  = process.env.AIRTABLE_API_KEY!;
+    const apiKey  = process.env.AIRTABLE_TOKEN!;
     const baseId  = process.env.AIRTABLE_BASE_ID!;
     const url     = `https://api.airtable.com/v0/${baseId}/Leads?maxRecords=50&sort[0][field]=Created&sort[0][direction]=desc`;
     const res     = await fetch(url, {
