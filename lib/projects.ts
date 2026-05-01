@@ -157,11 +157,16 @@ export async function updateProject(
 
   // Save Facilities in a separate PATCH so a 422 on Images never drops it
   if (data.facilities !== undefined) {
-    await fetch(`${BASE_URL}/${id}`, {
+    const facRes = await fetch(`${BASE_URL}/${id}`, {
       method: 'PATCH',
       headers,
       body: JSON.stringify({ fields: { Facilities: data.facilities } }),
-    }).catch((err) => console.error('[updateProject] Facilities PATCH failed:', err));
+    });
+    if (!facRes.ok) {
+      const facErr = await facRes.json().catch(() => ({}));
+      console.error('[updateProject] Facilities PATCH error:', facRes.status, JSON.stringify(facErr));
+      throw new Error(`Facilities save failed (${facRes.status}): ${JSON.stringify(facErr)}`);
+    }
   }
 
   return updated;
