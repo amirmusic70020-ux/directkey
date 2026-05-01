@@ -1,24 +1,42 @@
 /**
  * WhatsApp Cloud API — Meta
  * مسئول ارسال پیام به مشتری از طریق WhatsApp Business API
+ *
+ * All send functions accept an optional `creds` parameter so that
+ * per-agency WhatsApp credentials can be used instead of the global env vars.
  */
 
 const GRAPH_API_VERSION = 'v19.0';
 const GRAPH_API_BASE = `https://graph.facebook.com/${GRAPH_API_VERSION}`;
 
+// ─── Credential helpers ───────────────────────────────────────────────────────
+
+export interface WaCredentials {
+  phoneId: string;
+  token:   string;
+}
+
+/** Returns agency-specific credentials if provided, otherwise falls back to env vars */
+function resolveCredentials(override?: WaCredentials | null): WaCredentials | null {
+  const phoneId = override?.phoneId || process.env.WHATSAPP_PHONE_ID;
+  const token   = override?.token   || process.env.WHATSAPP_TOKEN;
+  if (!phoneId || !token) return null;
+  return { phoneId, token };
+}
+
 // ─── Send a text message ──────────────────────────────────────────────────────
 
 export async function sendWhatsAppMessage(
   to: string,
-  text: string
+  text: string,
+  creds?: WaCredentials | null
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
-  const phoneId = process.env.WHATSAPP_PHONE_ID;
-  const token = process.env.WHATSAPP_TOKEN;
-
-  if (!phoneId || !token) {
+  const resolved = resolveCredentials(creds);
+  if (!resolved) {
     console.error('[WhatsApp] Missing WHATSAPP_PHONE_ID or WHATSAPP_TOKEN env vars');
     return { success: false, error: 'WhatsApp credentials not configured' };
   }
+  const { phoneId, token } = resolved;
 
   // Normalize phone number — remove any non-digit chars except leading +
   const normalizedTo = to.replace(/[^\d+]/g, '').replace(/^\+/, '');
@@ -68,14 +86,14 @@ export async function sendWhatsAppDocument(
   to: string,
   documentUrl: string,
   filename: string = 'Brochure.pdf',
-  caption: string = ''
+  caption: string = '',
+  creds?: WaCredentials | null
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
-  const phoneId = process.env.WHATSAPP_PHONE_ID;
-  const token = process.env.WHATSAPP_TOKEN;
-
-  if (!phoneId || !token) {
+  const resolved = resolveCredentials(creds);
+  if (!resolved) {
     return { success: false, error: 'WhatsApp credentials not configured' };
   }
+  const { phoneId, token } = resolved;
 
   const normalizedTo = to.replace(/[^\d+]/g, '').replace(/^\+/, '');
 
@@ -116,10 +134,13 @@ export async function sendWhatsAppDocument(
 
 // ─── Mark message as read ─────────────────────────────────────────────────────
 
-export async function markAsRead(messageId: string): Promise<void> {
-  const phoneId = process.env.WHATSAPP_PHONE_ID;
-  const token = process.env.WHATSAPP_TOKEN;
-  if (!phoneId || !token) return;
+export async function markAsRead(
+  messageId: string,
+  creds?: WaCredentials | null
+): Promise<void> {
+  const resolved = resolveCredentials(creds);
+  if (!resolved) return;
+  const { phoneId, token } = resolved;
 
   try {
     await fetch(`${GRAPH_API_BASE}/${phoneId}/messages`, {
@@ -142,12 +163,13 @@ export async function markAsRead(messageId: string): Promise<void> {
 // ─── Extract incoming message from Meta webhook payload ───────────────────────
 
 export interface IncomingWhatsAppMessage {
-  from: string;           // sender phone number
-  messageId: string;      // WhatsApp message ID
-  text: string;           // message body text
-  timestamp: string;      // unix timestamp string
-  buttonPayload?: string; // if message came from a quick-reply button
-  projectName?: string;   // extracted from button payload (e.g. "Sky Residence Istanbul")
+  from: string;             // sender phone number
+  messageId: string;        // WhatsApp message ID
+  text: string;             // message body text
+  timestamp: string;        // unix timestamp string
+  phoneNumberId: string;    // the receiving phone number ID (identifies which agency)
+  buttonPayload?: string;   // if message came from a quick-reply button
+  projectName?: string;     // extracted from button payload
 }
 
 export function parseWebhookPayload(body: any): IncomingWhatsAppMessage | null {
@@ -162,6 +184,9 @@ export function parseWebhookPayload(body: any): IncomingWhatsAppMessage | null {
     const message = value?.messages?.[0];
     if (!message) return null;
 
+    // The phone number ID that received the message — use to identify agency
+    const phoneNumberId = value?.metadata?.phone_number_id || '';
+
     // Only handle text and button reply messages
     const text =
       message?.text?.body ||
@@ -172,7 +197,6 @@ export function parseWebhookPayload(body: any): IncomingWhatsAppMessage | null {
     if (!text) return null;
 
     // Extract project name from button payload if available
-    // Format we set in WhatsApp links: "Interested in: Sky Residence Istanbul"
     const buttonPayload =
       message?.button?.payload ||
       message?.interactive?.button_reply?.id ||
@@ -186,6 +210,7 @@ export function parseWebhookPayload(body: any): IncomingWhatsAppMessage | null {
       messageId: message.id,
       text,
       timestamp: message.timestamp,
+      phoneNumberId,
       buttonPayload,
       projectName,
     };
@@ -200,14 +225,14 @@ export function parseWebhookPayload(body: any): IncomingWhatsAppMessage | null {
 export async function sendWhatsAppTemplate(
   to: string,
   clientName: string,
-  projectInterest: string
+  projectInterest: string,
+  creds?: WaCredentials | null
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
-  const phoneId = process.env.WHATSAPP_PHONE_ID;
-  const token = process.env.WHATSAPP_TOKEN;
-
-  if (!phoneId || !token) {
+  const resolved = resolveCredentials(creds);
+  if (!resolved) {
     return { success: false, error: 'WhatsApp credentials not configured' };
   }
+  const { phoneId, token } = resolved;
 
   const normalizedTo = to.replace(/[^\d+]/g, '').replace(/^\+/, '');
 

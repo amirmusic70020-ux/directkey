@@ -1,15 +1,19 @@
 /**
- * WhatsApp Webhook -- DirectKey / SARA
+ * WhatsApp Webhook — DirectKey / SARA
  *
- * GET  /api/whatsapp  -> Meta webhook verification
- * POST /api/whatsapp  -> Incoming messages from WhatsApp
+ * GET  /api/whatsapp  → Meta webhook verification
+ * POST /api/whatsapp  → Incoming messages from WhatsApp
+ *
+ * Multi-tenant: the incoming phone_number_id identifies which agency's SARA
+ * should respond, using that agency's WhatsApp credentials.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { waitUntil } from '@vercel/functions';
 import { callSARA, ClientProfile } from '@/lib/sara';
-import { sendWhatsAppMessage, sendWhatsAppDocument, markAsRead, parseWebhookPayload } from '@/lib/whatsapp';
+import { sendWhatsAppMessage, sendWhatsAppDocument, markAsRead, parseWebhookPayload, WaCredentials } from '@/lib/whatsapp';
 import { getProjectBySlugFromSanity } from '@/sanity/queries';
+import { findAgencyByWhatsappPhoneId } from '@/lib/agencies';
 import {
   findLeadByPhone,
   createLead,
@@ -31,7 +35,7 @@ export async function GET(request: NextRequest) {
     return new NextResponse(challenge, { status: 200 });
   }
 
-  console.warn('[WhatsApp Webhook] Verification failed -- token mismatch');
+  console.warn('[WhatsApp Webhook] Verification failed — token mismatch');
   return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 }
 
@@ -56,14 +60,26 @@ async function processIncomingMessage(body: any) {
   const incoming = parseWebhookPayload(body);
   if (!incoming) return;
 
-  const { from, messageId, text, projectName } = incoming;
-  console.log(`[SARA] Incoming from ${from}: "${text.slice(0, 80)}"`);
+  const { from, messageId, text, projectName, phoneNumberId } = incoming;
+  console.log(`[SARA] Incoming from ${from} via phone_id=${phoneNumberId}: "${text.slice(0, 80)}"`);
 
-  markAsRead(messageId).catch(() => {});
+  // ── Resolve which agency owns this phone number ───────────────────────────
+  let agencyCreds: WaCredentials | null = null;
+  if (phoneNumberId) {
+    const agency = await findAgencyByWhatsappPhoneId(phoneNumberId);
+    if (agency?.whatsappPhoneId && agency?.whatsappToken) {
+      agencyCreds = { phoneId: agency.whatsappPhoneId, token: agency.whatsappToken };
+      console.log(`[SARA] Routing to agency: ${agency.name} (${agency.subdomain})`);
+    } else {
+      console.log(`[SARA] No agency found for phone_id=${phoneNumberId} — using global env creds`);
+    }
+  }
+
+  markAsRead(messageId, agencyCreds).catch(() => {});
 
   let lead = await findLeadByPhone(from);
   if (!lead) {
-    console.log(`[SARA] New lead from ${from} -- creating in Airtable`);
+    console.log(`[SARA] New lead from ${from} — creating in Airtable`);
     lead = await createLead(from, projectName, text);
   }
 
@@ -93,7 +109,7 @@ async function processIncomingMessage(body: any) {
     saraResult = await callSARA(text, saraContext);
   } catch (err: any) {
     console.error('[SARA] Claude API error:', err.message);
-    await sendWhatsAppMessage(from, 'Hi! Sorry, there was a technical issue. My colleague will reply shortly.');
+    await sendWhatsAppMessage(from, 'Hi! Sorry, there was a technical issue. My colleague will reply shortly.', agencyCreds);
     return;
   }
 
@@ -101,20 +117,19 @@ async function processIncomingMessage(body: any) {
   console.log(`[SARA] Response to ${from}: "${response.slice(0, 80)}..."`);
   console.log(`[SARA] Needs human: ${needsHuman}, Lead score: ${crmUpdate?.leadScore}, Brochure: ${brochureProjectSlug || 'none'}, Link: ${projectLinkSlug || 'none'}`);
 
-  console.log(`[SARA] Sending reply to ${from} (length: ${response.length} chars)`);
-  const sendResult = await sendWhatsAppMessage(from, response);
+  const sendResult = await sendWhatsAppMessage(from, response, agencyCreds);
   if (!sendResult.success) {
-    console.error('[SARA] FAILED to send WhatsApp message to', from, '-- error:', sendResult.error);
+    console.error('[SARA] FAILED to send WhatsApp message to', from, '— error:', sendResult.error);
   } else {
     console.log('[SARA] WhatsApp reply sent successfully, messageId:', sendResult.messageId);
   }
 
-  // ── Send project link if SARA requested it ───────────────────────────────
+  // ── Send project link if SARA requested it ────────────────────────────────
   if (projectLinkSlug) {
     try {
       const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://directkey.vercel.app';
       const projectUrl = `${siteUrl}/en/projects/${projectLinkSlug}`;
-      const linkResult = await sendWhatsAppMessage(from, projectUrl);
+      const linkResult = await sendWhatsAppMessage(from, projectUrl, agencyCreds);
       if (linkResult.success) {
         console.log(`[SARA] Project link sent for "${projectLinkSlug}" to ${from}`);
       } else {
@@ -134,7 +149,8 @@ async function processIncomingMessage(body: any) {
           from,
           project.brochureUrl,
           `${project.title} - Brochure.pdf`,
-          `📋 ${project.title}`
+          `📋 ${project.title}`,
+          agencyCreds
         );
         if (brochureResult.success) {
           console.log(`[SARA] Brochure sent for "${project.title}" to ${from}`);
@@ -167,7 +183,7 @@ async function processIncomingMessage(body: any) {
   }
 
   if (needsHuman) {
-    console.log(`[SARA] Human needed for ${from} -- notifying owner`);
+    console.log(`[SARA] Human needed for ${from} — notifying owner`);
     await notifyOwner({
       clientPhone: from,
       clientName: crmUpdate?.clientName || lead?.name,

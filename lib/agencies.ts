@@ -68,6 +68,15 @@ export async function findAgencyByEmail(email: string): Promise<Agency | null> {
   return record ? mapRecord(record) : null;
 }
 
+export async function findAgencyByWhatsappPhoneId(phoneId: string): Promise<Agency | null> {
+  const formula = encodeURIComponent(`{WhatsappPhoneId}="${phoneId}"`);
+  const res = await fetch(`${BASE_URL}?filterByFormula=${formula}&maxRecords=1`, { headers });
+  if (!res.ok) return null;
+  const data = await res.json();
+  const record = data.records?.[0];
+  return record ? mapRecord(record) : null;
+}
+
 export async function findAgencyBySubdomain(subdomain: string): Promise<Agency | null> {
   const formula = encodeURIComponent(`LOWER({Subdomain})="${subdomain.toLowerCase()}"`);
   const res = await fetch(`${BASE_URL}?filterByFormula=${formula}&maxRecords=1`, { headers });
@@ -134,6 +143,7 @@ export async function updateAgency(
   if (fields.theme)                             airtableFields['Theme']                  = fields.theme;
   if (fields.phone    !== undefined)            airtableFields['Phone']                  = fields.phone;
   if (fields.address  !== undefined)            airtableFields['Address']                = fields.address;
+  // Logo can be a base64 data URL — requires LogoUrl to be Long Text type in Airtable
   if (fields.logo     !== undefined)            airtableFields['LogoUrl']                = fields.logo;
   if (fields.plan)                              airtableFields['Plan']                   = fields.plan;
   if (fields.status)                            airtableFields['Status']                 = fields.status;

@@ -19,7 +19,7 @@ export function middleware(req: NextRequest) {
   if (SKIP_PATTERNS.test(pathname)) return NextResponse.next();
 
   // ── Subdomain detection ──────────────────────────────────────────────────
-  // In production: remax.directkey.app → subdomain = "remax"
+  // In production: persianjazz.directkey.app → subdomain = "persianjazz"
   // In development: localhost (no subdomain)
   const host = req.headers.get('host') || hostname;
   const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'directkey.app';
@@ -29,24 +29,20 @@ export function middleware(req: NextRequest) {
     subdomain = host.replace(`.${rootDomain}`, '');
   }
 
-  // ── Agency subdomain → real-estate site (locale routing) ────────────────
+  // ── Agency subdomain → per-agency real-estate site ───────────────────────
   if (subdomain) {
-    // Rewrite all subdomain traffic to /en/* (the real-estate site)
-    // preserving the path so subdomain.directkey.app/projects works
     const url = req.nextUrl.clone();
-    // If path is just "/" go to /en
-    if (pathname === '/') {
-      url.pathname = '/en';
-      return NextResponse.rewrite(url);
-    }
-    // If not already under a locale, prepend /en
-    const firstSegment = pathname.split('/')[1];
-    if (!locales.includes(firstSegment)) {
-      url.pathname = `/en${pathname}`;
-      return NextResponse.rewrite(url);
-    }
-    // Already has locale — pass to intl middleware
-    return intlMiddleware(req);
+
+    // Rewrite all subdomain traffic to /agency/[subdomain]/[...rest]
+    // e.g. persianjazz.directkey.app/projects → /agency/persianjazz/projects
+    //      persianjazz.directkey.app/          → /agency/persianjazz
+    const rest = pathname === '/' ? '' : pathname;
+    url.pathname = `/agency/${subdomain}${rest}`;
+
+    const res = NextResponse.rewrite(url);
+    // Pass subdomain as header so server components can read it
+    res.headers.set('x-subdomain', subdomain);
+    return res;
   }
 
   // ── Main domain: SaaS marketing + dashboard ──────────────────────────────

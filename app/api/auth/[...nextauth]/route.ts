@@ -82,8 +82,9 @@ export const authOptions: NextAuthOptions = {
 
       // Session update (called after settings save)
       if (trigger === 'update' && session) {
-        if (session.name)  token.name  = session.name;
-        if (session.theme) token.theme = session.theme;
+        if (session.name  !== undefined) token.name  = session.name;
+        if (session.theme !== undefined) token.theme = session.theme;
+        // logo intentionally not stored in JWT — loaded fresh from /api/settings
       }
 
       return token;
