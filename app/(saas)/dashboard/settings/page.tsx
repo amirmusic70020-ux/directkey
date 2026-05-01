@@ -16,21 +16,26 @@ const THEMES = [
   { id: 'rose',   label: 'Rose',       bg: '#1f0d14', ring: '#f43f5e' },
 ];
 
-/** Resize image client-side to max 300px, compress as JPEG 80% quality.
- *  Result is a base64 data URL — typically 15–40 KB, safe for Airtable Long Text. */
-function resizeImage(file: File, maxPx = 300): Promise<string> {
+/** Smart compression: resize logo until base64 fits in Airtable (~75KB limit). */
+function resizeImage(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
       img.onload = () => {
-        const ratio = Math.min(maxPx / img.width, maxPx / img.height, 1);
-        const canvas = document.createElement('canvas');
-        canvas.width  = Math.round(img.width  * ratio);
-        canvas.height = Math.round(img.height * ratio);
-        const ctx = canvas.getContext('2d')!;
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL('image/jpeg', 0.8));
+        const compress = (maxPx: number, quality: number): string => {
+          const ratio = Math.min(maxPx / img.width, maxPx / img.height, 1);
+          const canvas = document.createElement('canvas');
+          canvas.width  = Math.round(img.width  * ratio);
+          canvas.height = Math.round(img.height * ratio);
+          const ctx = canvas.getContext('2d')!;
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          return canvas.toDataURL('image/jpeg', quality);
+        };
+        let result = compress(300, 0.85);
+        if (result.length > 75000) result = compress(200, 0.75);
+        if (result.length > 75000) result = compress(150, 0.65);
+        resolve(result);
       };
       img.onerror = reject;
       img.src = e.target!.result as string;

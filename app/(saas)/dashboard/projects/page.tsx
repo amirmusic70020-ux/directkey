@@ -27,20 +27,30 @@ const FACILITIES = [
   'BBQ Area', 'Jogging Track', 'Retail Outlets', 'Maids Room', 'Storage Room',
 ];
 
-/** Resize image client-side to max 400px, JPEG 75%. Returns base64 data URL (~30-50KB). */
-function resizeImage(file: File, maxPx = 400): Promise<string> {
+/** Smart compression: resize + reduce quality until base64 fits in Airtable (~75KB limit). */
+function resizeImage(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
       img.onload = () => {
-        const ratio = Math.min(maxPx / img.width, maxPx / img.height, 1);
-        const canvas = document.createElement('canvas');
-        canvas.width  = Math.round(img.width  * ratio);
-        canvas.height = Math.round(img.height * ratio);
-        const ctx = canvas.getContext('2d')!;
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL('image/jpeg', 0.75));
+        const compress = (maxPx: number, quality: number): string => {
+          const ratio = Math.min(maxPx / img.width, maxPx / img.height, 1);
+          const canvas = document.createElement('canvas');
+          canvas.width  = Math.round(img.width  * ratio);
+          canvas.height = Math.round(img.height * ratio);
+          const ctx = canvas.getContext('2d')!;
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          return canvas.toDataURL('image/jpeg', quality);
+        };
+
+        // Try progressively smaller until under 75,000 chars (~56KB base64)
+        let result = compress(800, 0.85);
+        if (result.length > 75000) result = compress(600, 0.80);
+        if (result.length > 75000) result = compress(400, 0.75);
+        if (result.length > 75000) result = compress(300, 0.65);
+
+        resolve(result);
       };
       img.onerror = reject;
       img.src = e.target!.result as string;
