@@ -45,7 +45,8 @@ function mapRecord(r: any): Project {
     bedrooms:    f['Bedrooms']    ?? '',
     area:        f['Area']        ?? '',
     status:      typeof f['Status'] === 'object' ? (f['Status']?.name ?? '') : (f['Status'] ?? 'Available'),
-    imageUrl:    f['ImageUrl']    ?? '',
+    // Accept base64 from ImageData (Long Text) first, fall back to ImageUrl (URL field)
+    imageUrl:    f['ImageData']   ?? f['ImageUrl'] ?? '',
     facilities:  f['Facilities']  ?? '',
   };
 }
@@ -62,31 +63,55 @@ export async function getProjectsByAgency(agencyId: string): Promise<Project[]> 
 }
 
 export async function createProject(data: Omit<Project, 'id'>): Promise<Project> {
-  const res = await fetch(BASE_URL, {
+  // Core fields that must exist in Airtable
+  const coreFields: Record<string, any> = {
+    'Project Name': data.name,
+    AgencyId:       data.agencyId,
+    Description:    data.description,
+    Price:          data.price,
+    Currency:       data.currency,
+    Location:       data.location,
+    Type:           data.type,
+    Bedrooms:       data.bedrooms,
+    Area:           data.area,
+    Status:         data.status,
+  };
+
+  // Extended fields — only add if non-empty (avoids rejection if field doesn't exist yet)
+  // ImageData = Long Text field for base64 images; Facilities = Long Text for amenities list
+  const allFields = {
+    ...coreFields,
+    ...(data.imageUrl   ? { ImageData:  data.imageUrl   } : {}),
+    ...(data.facilities ? { Facilities: data.facilities } : {}),
+  };
+
+  let res = await fetch(BASE_URL, {
     method: 'POST',
     headers,
-    body: JSON.stringify({
-      fields: {
-        'Project Name': data.name,
-        AgencyId:       data.agencyId,
-        Description:    data.description,
-        Price:          data.price,
-        Currency:       data.currency,
-        Location:       data.location,
-        Type:           data.type,
-        Bedrooms:       data.bedrooms,
-        Area:           data.area,
-        Status:         data.status,
-        ImageUrl:       data.imageUrl,
-        Facilities:     data.facilities ?? '',
-      },
-    }),
+    body: JSON.stringify({ fields: allFields }),
   });
+
+  // If Airtable rejects (e.g. unknown field), fall back to core fields only
   if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    console.error('[createProject] Airtable error:', JSON.stringify(err));
-    throw new Error('Failed to create project');
+    const errBody = await res.json().catch(() => ({}));
+    console.error('[createProject] Airtable error:', JSON.stringify(errBody));
+
+    if (res.status === 422) {
+      // Retry with core fields only — extended fields don't exist in Airtable yet
+      res = await fetch(BASE_URL, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ fields: coreFields }),
+      });
+    }
+
+    if (!res.ok) {
+      const fallbackErr = await res.json().catch(() => ({}));
+      console.error('[createProject] fallback error:', JSON.stringify(fallbackErr));
+      throw new Error(`Airtable error: ${JSON.stringify(fallbackErr)}`);
+    }
   }
+
   return mapRecord(await res.json());
 }
 
@@ -104,14 +129,28 @@ export async function updateProject(
   if (data.bedrooms    !== undefined) fields['Bedrooms']     = data.bedrooms;
   if (data.area        !== undefined) fields['Area']         = data.area;
   if (data.status      !== undefined) fields['Status']       = data.status;
-  if (data.imageUrl    !== undefined) fields['ImageUrl']     = data.imageUrl;
-  if (data.facilities  !== undefined) fields['Facilities']   = data.facilities;
+  // Only include extended fields if they have values (avoids rejection if field missing in Airtable)
+  if (data.imageUrl)   fields['ImageData']  = data.imageUrl;   // Long Text field for base64
+  if (data.facilities) fields['Facilities'] = data.facilities; // Long Text field
 
-  const res = await fetch(`${BASE_URL}/${id}`, {
+  let res = await fetch(`${BASE_URL}/${id}`, {
     method: 'PATCH',
     headers,
     body: JSON.stringify({ fields }),
   });
+
+  // If Airtable rejects extended fields, retry with core fields only
+  if (!res.ok && res.status === 422) {
+    const coreFields = { ...fields };
+    delete coreFields['ImageData'];
+    delete coreFields['Facilities'];
+    res = await fetch(`${BASE_URL}/${id}`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({ fields: coreFields }),
+    });
+  }
+
   if (!res.ok) throw new Error('Failed to update project');
   return mapRecord(await res.json());
 }

@@ -16,7 +16,7 @@ const EMPTY: Omit<Project, 'id' | 'agencyId'> = {
   status: 'Available', imageUrl: '', facilities: '',
 };
 
-const TYPES    = ['Apartment', 'Villa', 'Penthouse', 'Townhouse', 'Office', 'Land', 'Commercial'];
+const TYPES    = ['Apartment', 'Villa', 'Penthouse', 'Townhouse', 'Residential Complex', 'Tower', 'Compound', 'Office', 'Land', 'Commercial'];
 const STATUSES = ['Available', 'Reserved', 'Sold'];
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'AED', 'TRY', 'SAR', 'QAR', 'KWD', 'BHD', 'OMR'];
 
@@ -60,6 +60,7 @@ export default function ProjectsPage() {
   const [deleting, setDeleting] = useState<string | null>(null);
   const [imgUploading, setImgUploading] = useState(false);
   const [imgError, setImgError] = useState('');
+  const [saveError, setSaveError] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
   async function load() {
@@ -76,6 +77,7 @@ export default function ProjectsPage() {
     setEditing(null);
     setForm({ ...EMPTY });
     setImgError('');
+    setSaveError('');
     setShowForm(true);
   }
 
@@ -87,6 +89,7 @@ export default function ProjectsPage() {
       status: p.status, imageUrl: p.imageUrl, facilities: p.facilities ?? '',
     });
     setImgError('');
+    setSaveError('');
     setShowForm(true);
   }
 
@@ -127,15 +130,27 @@ export default function ProjectsPage() {
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
+    setSaveError('');
     const body = editing ? { ...form, id: editing.id } : form;
-    await fetch('/api/projects', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    setSaving(false);
-    setShowForm(false);
-    load();
+    try {
+      const res = await fetch('/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setSaveError(data.error || `Server error (${res.status}) — check Vercel logs`);
+        setSaving(false);
+        return;
+      }
+      setShowForm(false);
+      load();
+    } catch (err: any) {
+      setSaveError(err.message || 'Network error');
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function handleDelete(id: string) {
@@ -343,6 +358,13 @@ export default function ProjectsPage() {
                   </p>
                 )}
               </div>
+
+              {/* ── Save error ───────────────────────────────────────── */}
+              {saveError && (
+                <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">
+                  ⚠️ {saveError}
+                </div>
+              )}
 
               {/* ── Buttons ───────────────────────────────────────────── */}
               <div className="flex gap-3 pt-2">
