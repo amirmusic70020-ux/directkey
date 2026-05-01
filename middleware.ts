@@ -19,8 +19,6 @@ export function middleware(req: NextRequest) {
   if (SKIP_PATTERNS.test(pathname)) return NextResponse.next();
 
   // ── Subdomain detection ──────────────────────────────────────────────────
-  // In production: persianjazz.directkey.app → subdomain = "persianjazz"
-  // In development: localhost (no subdomain)
   const host = req.headers.get('host') || hostname;
   const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'directkey.app';
 
@@ -29,29 +27,28 @@ export function middleware(req: NextRequest) {
     subdomain = host.replace(`.${rootDomain}`, '');
   }
 
-  // ── Agency subdomain → per-agency real-estate site ───────────────────────
+  // ── Agency subdomain — rewrite to /en but pass subdomain via header ──────
+  // We keep the [locale] layout so html/body structure is correct.
   if (subdomain) {
     const url = req.nextUrl.clone();
-
-    // Rewrite all subdomain traffic to /agency/[subdomain]/[...rest]
-    // e.g. persianjazz.directkey.app/projects → /agency/persianjazz/projects
-    //      persianjazz.directkey.app/          → /agency/persianjazz
-    const rest = pathname === '/' ? '' : pathname;
-    url.pathname = `/agency/${subdomain}${rest}`;
-
+    if (pathname === '/') {
+      url.pathname = '/en';
+    } else {
+      const firstSegment = pathname.split('/')[1];
+      if (!locales.includes(firstSegment)) {
+        url.pathname = `/en${pathname}`;
+      }
+    }
     const res = NextResponse.rewrite(url);
-    // Pass subdomain as header so server components can read it
     res.headers.set('x-subdomain', subdomain);
     return res;
   }
 
   // ── Main domain: SaaS marketing + dashboard ──────────────────────────────
-  // Routes like /, /login, /register, /dashboard → no intl processing
   if (SAAS_PATHS.test(pathname)) {
     return NextResponse.next();
   }
 
-  // Everything else on main domain → intl middleware (for /en, /tr, etc.)
   return intlMiddleware(req);
 }
 

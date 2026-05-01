@@ -1,14 +1,17 @@
 import { getTranslations, unstable_setRequestLocale } from 'next-intl/server';
+import { headers } from 'next/headers';
 
 // Revalidate every 60 seconds — picks up new Sanity projects automatically
 export const revalidate = 60;
 import Link from 'next/link';
 import Hero from '@/components/Hero';
 import ProjectCard from '@/components/ProjectCard';
-import { getFeaturedProjects } from '@/lib/projects';
+import { getFeaturedProjects, getProjectsByAgency } from '@/lib/projects';
 import { getFeaturedProjectsFromSanity } from '@/sanity/queries';
 import { ArrowRight, Search, CalendarCheck, FileCheck, Star, Shield, TrendingUp } from 'lucide-react';
 import PricingSection from '@/components/PricingSection';
+import { findAgencyBySubdomain } from '@/lib/agencies';
+import AgencySite from '@/components/AgencySite';
 
 async function HowItWorks({ locale }: { locale: string }) {
   const t = await getTranslations({ locale, namespace: 'how' });
@@ -97,6 +100,15 @@ export default async function LandingPage({
 }: {
   params: { locale: string };
 }) {
+  // ── Agency subdomain site ────────────────────────────────────────────────
+  const subdomain = headers().get('x-subdomain');
+  if (subdomain) {
+    const agency = await findAgencyBySubdomain(subdomain);
+    const projects = agency ? await getProjectsByAgency(agency.id) : [];
+    return <AgencySite agency={agency} projects={projects} />;
+  }
+
+  // ── Main marketing site ──────────────────────────────────────────────────
   unstable_setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'featured' });
   let featured;
