@@ -95,12 +95,15 @@ export async function createAgency(data: {
         Email: data.email.toLowerCase(),
         PasswordHash: data.passwordHash,
         Plan: 'basic',
-        Status: 'pending',
         Theme: 'blue',
       },
     }),
   });
-  if (!res.ok) throw new Error('Failed to create agency');
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    console.error('[createAgency] Airtable error:', JSON.stringify(err));
+    throw new Error('Failed to create agency');
+  }
   return mapRecord(await res.json());
 }
 
