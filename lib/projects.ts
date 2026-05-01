@@ -28,6 +28,7 @@ export type Project = {
   area:        string;
   status:      string;
   imageUrl:    string;
+  facilities:  string;   // comma-separated list, e.g. "Pool,Gym,Parking"
 };
 
 function mapRecord(r: any): Project {
@@ -45,6 +46,7 @@ function mapRecord(r: any): Project {
     area:        f['Area']        ?? '',
     status:      typeof f['Status'] === 'object' ? (f['Status']?.name ?? '') : (f['Status'] ?? 'Available'),
     imageUrl:    f['ImageUrl']    ?? '',
+    facilities:  f['Facilities']  ?? '',
   };
 }
 
@@ -76,6 +78,7 @@ export async function createProject(data: Omit<Project, 'id'>): Promise<Project>
         Area:           data.area,
         Status:         data.status,
         ImageUrl:       data.imageUrl,
+        Facilities:     data.facilities ?? '',
       },
     }),
   });
@@ -102,6 +105,7 @@ export async function updateProject(
   if (data.area        !== undefined) fields['Area']         = data.area;
   if (data.status      !== undefined) fields['Status']       = data.status;
   if (data.imageUrl    !== undefined) fields['ImageUrl']     = data.imageUrl;
+  if (data.facilities  !== undefined) fields['Facilities']   = data.facilities;
 
   const res = await fetch(`${BASE_URL}/${id}`, {
     method: 'PATCH',

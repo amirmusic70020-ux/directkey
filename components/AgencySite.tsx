@@ -4,7 +4,7 @@
  * Lives inside the [locale] layout so html/body structure is correct.
  */
 
-import { Building2, MessageCircle, MapPin, BedDouble, Maximize2, Phone, Mail, ExternalLink, Bot } from 'lucide-react';
+import { Building2, MessageCircle, MapPin, BedDouble, Maximize2, Phone, Mail, ExternalLink, Bot, Waves, Dumbbell, Car, Shield, Sparkles, Baby, Umbrella, Eye, Leaf, Wind, Cpu, Thermometer, Trophy } from 'lucide-react';
 import type { Agency } from '@/lib/agencies';
 import type { Project } from '@/lib/projects';
 
@@ -19,6 +19,25 @@ const THEME_COLORS: Record<string, { bg: string; accent: string; badge: string }
   gold:   { bg: '#1a1200', accent: '#f59e0b', badge: '#f59e0b20' },
   slate:  { bg: '#1e293b', accent: '#94a3b8', badge: '#94a3b820' },
   rose:   { bg: '#1f0d14', accent: '#f43f5e', badge: '#f43f5e20' },
+};
+
+// Maps facility name → icon component
+const FACILITY_ICONS: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
+  'Swimming Pool': Waves,
+  'Gym':           Dumbbell,
+  'Parking':       Car,
+  '24h Security':  Shield,
+  'Concierge':     Sparkles,
+  'Spa':           Sparkles,
+  'Kids Area':     Baby,
+  'Beach Access':  Umbrella,
+  'Sea View':      Eye,
+  'Garden':        Leaf,
+  'Balcony':       Wind,
+  'Smart Home':    Cpu,
+  'Central A/C':   Thermometer,
+  'Sauna':         Thermometer,
+  'Tennis Court':  Trophy,
 };
 
 function statusColor(status: string) {
@@ -42,6 +61,9 @@ function formatPrice(price: string, currency: string) {
 function AgencyProjectCard({ project, accent, waNumber }: { project: Project; accent: string; waNumber: string }) {
   const status = statusColor(project.status);
   const price  = formatPrice(project.price, project.currency);
+  const facilityList = project.facilities
+    ? project.facilities.split(',').map(s => s.trim()).filter(Boolean)
+    : [];
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow group">
@@ -95,6 +117,27 @@ function AgencyProjectCard({ project, accent, waNumber }: { project: Project; ac
           <p className="text-gray-500 text-sm leading-relaxed mb-4 line-clamp-2">
             {project.description}
           </p>
+        )}
+        {facilityList.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {facilityList.slice(0, 6).map(fac => {
+              const Icon = FACILITY_ICONS[fac];
+              return (
+                <span
+                  key={fac}
+                  className="flex items-center gap-1 text-[11px] font-medium px-2 py-1 rounded-lg bg-gray-50 text-gray-600 border border-gray-100"
+                >
+                  {Icon && <Icon size={10} />}
+                  {fac}
+                </span>
+              );
+            })}
+            {facilityList.length > 6 && (
+              <span className="text-[11px] font-medium px-2 py-1 rounded-lg bg-gray-50 text-gray-400 border border-gray-100">
+                +{facilityList.length - 6}
+              </span>
+            )}
+          </div>
         )}
         <div className="flex items-center justify-between pt-3 border-t border-gray-50">
           {price ? (
