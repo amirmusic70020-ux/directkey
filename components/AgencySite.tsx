@@ -69,7 +69,7 @@ function AgencyProjectCard({ project, accent }: { project: Project; accent: stri
   return (
     <div className="bg-white rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col border border-gray-100">
       {/* Image */}
-      <div className="h-60 bg-gray-100 relative overflow-hidden flex-shrink-0">
+      <div className="h-72 bg-gray-100 relative overflow-hidden flex-shrink-0">
         {project.imageUrl ? (
           <img
             src={project.imageUrl}
@@ -283,7 +283,7 @@ export default function AgencySite({ agency, projects }: Props) {
         </div>
       </section>
 
-      {/* Properties */}
+      {/* Properties — show top 3 on homepage */}
       <main id="properties" className="max-w-6xl mx-auto px-5 py-14">
         {ordered.length === 0 ? (
           <div className="text-center py-24 text-gray-400">
@@ -306,7 +306,7 @@ export default function AgencySite({ agency, projects }: Props) {
               </span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {ordered.map(p => (
+              {ordered.slice(0, 3).map(p => (
                 <a
                   key={p.id}
                   href={`/projects/${p.id}`}
@@ -317,9 +317,77 @@ export default function AgencySite({ agency, projects }: Props) {
                 </a>
               ))}
             </div>
+
+            {/* View All button */}
+            <div className="mt-10 text-center">
+              <a
+                href="/projects"
+                className="inline-flex items-center gap-2 font-semibold text-sm px-8 py-4 rounded-2xl border-2 transition hover:opacity-90"
+                style={{ borderColor: theme.accent, color: theme.accent }}
+              >
+                View All {ordered.length} Properties <ArrowRight size={16} />
+              </a>
+            </div>
           </>
         )}
       </main>
+
+      {/* FAQ */}
+      <section className="bg-white py-16 border-t border-gray-100">
+        <div className="max-w-3xl mx-auto px-5">
+          <div className="text-center mb-10">
+            <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: theme.accent }}>FAQ</p>
+            <h2 className="text-3xl font-bold text-gray-900">Frequently Asked Questions</h2>
+            <p className="text-gray-400 text-sm mt-2">Everything you need to know before buying</p>
+          </div>
+          <div className="space-y-3">
+            {[
+              {
+                q: 'Can foreigners buy property in Turkey?',
+                a: 'Yes. Citizens of most countries can purchase property in Turkey. The process is straightforward and the title deed (TAPU) is fully transferable to foreign nationals. Our team handles all legal steps on your behalf.',
+              },
+              {
+                q: 'Can I get Turkish citizenship by buying property?',
+                a: 'Yes — investing a minimum of $400,000 USD in Turkish real estate makes you eligible to apply for Turkish citizenship for yourself and your family. We guide you through the full citizenship-by-investment process.',
+              },
+              {
+                q: 'What documents do I need to buy a property?',
+                a: 'You typically need a valid passport, a Turkish tax number (which we obtain for you in one day), and a bank account in Turkey. We coordinate everything so you can complete the purchase even remotely.',
+              },
+              {
+                q: 'How long does the buying process take?',
+                a: 'From signing the reservation agreement to receiving your title deed usually takes 2–6 weeks for cash purchases. Mortgage or off-plan transactions may take longer depending on the developer timeline.',
+              },
+              {
+                q: 'What taxes and fees should I expect?',
+                a: 'The main costs are: title deed tax (4% of the declared value), VAT (exempt for foreign buyers in some cases), and notary fees. We provide a full cost breakdown upfront — no surprises.',
+              },
+              {
+                q: 'Do you offer installment or payment plans?',
+                a: 'Many of our off-plan projects offer flexible payment plans directly with the developer — typically 30–50% upfront and the rest in installments over 12–48 months. Contact us to find options that fit your budget.',
+              },
+            ].map(({ q, a }) => (
+              <details
+                key={q}
+                className="group border border-gray-200 rounded-2xl overflow-hidden"
+              >
+                <summary className="flex items-center justify-between gap-4 cursor-pointer px-6 py-5 font-semibold text-gray-900 list-none select-none hover:bg-gray-50 transition">
+                  {q}
+                  <span
+                    className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-white text-sm font-bold transition"
+                    style={{ backgroundColor: theme.accent }}
+                  >
+                    +
+                  </span>
+                </summary>
+                <div className="px-6 pb-5 pt-1 text-gray-500 text-sm leading-relaxed border-t border-gray-100">
+                  {a}
+                </div>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* CTA banner */}
       {waNumber && (
