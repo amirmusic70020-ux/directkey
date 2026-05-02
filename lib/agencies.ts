@@ -37,6 +37,13 @@ export type Agency = {
   airtableBaseId?: string;
   whatsappPhoneId?: string;
   whatsappToken?: string;
+  // SARA onboarding fields
+  whatsappNumber?:  string;
+  whatsappStatus?:  'pending' | 'active' | 'inactive';
+  saraName?:        string;
+  saraStyle?:       'professional' | 'friendly' | 'luxury';
+  saraAbout?:       string;
+  saraMarkets?:     string;
 };
 
 function mapRecord(record: any): Agency {
@@ -60,6 +67,12 @@ function mapRecord(record: any): Agency {
     airtableBaseId:       f['AirtableBaseId'],
     whatsappPhoneId:      f['WhatsappPhoneId'],
     whatsappToken:        f['WhatsappToken'],
+    whatsappNumber:       f['WhatsappNumber'],
+    whatsappStatus:       f['WhatsappStatus'],
+    saraName:             f['SaraName'],
+    saraStyle:            f['SaraStyle'],
+    saraAbout:            f['SaraAbout'],
+    saraMarkets:          f['SaraMarkets'],
   };
 }
 
@@ -142,6 +155,12 @@ export async function updateAgency(
     airtableBaseId:       string;
     whatsappPhoneId:      string;
     whatsappToken:        string;
+    whatsappNumber:       string;
+    whatsappStatus:       string;
+    saraName:             string;
+    saraStyle:            string;
+    saraAbout:            string;
+    saraMarkets:          string;
   }>
 ): Promise<Agency> {
   const airtableFields: Record<string, any> = {};
@@ -160,6 +179,12 @@ export async function updateAgency(
   if (fields.airtableBaseId)                    airtableFields['AirtableBaseId']         = fields.airtableBaseId;
   if (fields.whatsappPhoneId !== undefined)     airtableFields['WhatsappPhoneId']        = fields.whatsappPhoneId;
   if (fields.whatsappToken   !== undefined)     airtableFields['WhatsappToken']          = fields.whatsappToken;
+  if (fields.whatsappNumber  !== undefined)     airtableFields['WhatsappNumber']         = fields.whatsappNumber;
+  if (fields.whatsappStatus  !== undefined)     airtableFields['WhatsappStatus']         = fields.whatsappStatus;
+  if (fields.saraName        !== undefined)     airtableFields['SaraName']               = fields.saraName;
+  if (fields.saraStyle       !== undefined)     airtableFields['SaraStyle']              = fields.saraStyle;
+  if (fields.saraAbout       !== undefined)     airtableFields['SaraAbout']              = fields.saraAbout;
+  if (fields.saraMarkets     !== undefined)     airtableFields['SaraMarkets']            = fields.saraMarkets;
 
   const res = await fetch(`${BASE_URL}/${id}`, {
     method: 'PATCH',
