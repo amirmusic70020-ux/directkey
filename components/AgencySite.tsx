@@ -167,87 +167,155 @@ export default function AgencySite({ agency, projects }: Props) {
 
       {/* Hero */}
       <header style={{ backgroundColor: theme.bg }} className="relative overflow-hidden">
-        <div
-          className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full opacity-10 blur-3xl"
-          style={{ backgroundColor: theme.accent }}
-        />
+        {/* Dot grid pattern */}
+        <div className="absolute inset-0 opacity-[0.06]"
+          style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+        {/* Accent glow — top right */}
+        <div className="absolute -top-32 -right-32 w-[600px] h-[600px] rounded-full opacity-20 blur-3xl"
+          style={{ backgroundColor: theme.accent }} />
+        {/* Accent glow — bottom left */}
+        <div className="absolute -bottom-20 -left-20 w-[400px] h-[400px] rounded-full opacity-10 blur-3xl"
+          style={{ backgroundColor: theme.accent }} />
 
-        <div className="relative z-10 max-w-6xl mx-auto px-5 py-6 flex items-center justify-between">
+        {/* Navbar */}
+        <div className="relative z-10 max-w-6xl mx-auto px-5 py-5 flex items-center justify-between border-b border-white/10">
           <div className="flex items-center gap-3">
             {agency.logo ? (
               <img src={agency.logo} alt={agency.name} className="w-10 h-10 rounded-xl object-contain bg-white/10 p-1" />
             ) : (
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${theme.accent}20` }}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${theme.accent}25` }}>
                 <Bot size={20} style={{ color: theme.accent }} />
               </div>
             )}
-            <span className="text-white font-bold text-lg">{agency.name}</span>
+            <span className="text-white font-bold text-lg tracking-tight">{agency.name}</span>
           </div>
-          {waNumber && (
-            <a
-              href={`https://wa.me/${waNumber}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold text-sm px-4 py-2.5 rounded-xl transition"
-            >
-              <MessageCircle size={16} />
-              <span className="hidden sm:inline">WhatsApp</span>
+          <div className="flex items-center gap-3">
+            <a href="#properties" className="hidden sm:block text-sm font-medium text-white/60 hover:text-white transition">
+              Properties
             </a>
-          )}
-        </div>
-
-        {/* Hero content */}
-        <div className="relative z-10 max-w-6xl mx-auto px-5 pt-14 pb-24">
-          <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: theme.accent }}>
-            Real Estate Agency
-          </p>
-          <h1 className="text-4xl sm:text-6xl font-bold text-white mb-5 leading-tight max-w-2xl">
-            {agency.name}
-          </h1>
-          {agency.description && (
-            <p className="text-gray-300 text-lg mb-8 max-w-xl leading-relaxed">
-              {agency.description}
-            </p>
-          )}
-          {!agency.description && (
-            <p className="text-gray-300 text-lg mb-8 max-w-xl leading-relaxed">
-              Premium properties in Turkey's most desirable locations.
-            </p>
-          )}
-          <div className="flex flex-wrap gap-3">
-            <a href="#properties"
-              className="flex items-center gap-2 font-semibold text-sm px-6 py-3 rounded-xl transition"
-              style={{ backgroundColor: theme.accent, color: '#fff' }}>
-              Explore Properties <ArrowRight size={15} />
+            <a href="#faq" className="hidden sm:block text-sm font-medium text-white/60 hover:text-white transition">
+              FAQ
             </a>
             {waNumber && (
-              <a href={`https://wa.me/${waNumber}`} target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold text-sm px-6 py-3 rounded-xl transition backdrop-blur-sm">
-                <MessageCircle size={15} /> Talk to Us
+              <a
+                href={`https://wa.me/${waNumber}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold text-sm px-4 py-2.5 rounded-xl transition"
+              >
+                <MessageCircle size={15} />
+                <span className="hidden sm:inline">WhatsApp</span>
               </a>
             )}
           </div>
+        </div>
 
-          {/* Stats */}
-          <div className="flex gap-8 mt-12 pt-8 border-t border-white/10">
+        {/* Hero content — split layout */}
+        <div className="relative z-10 max-w-6xl mx-auto px-5 pt-14 pb-20">
+          <div className="grid lg:grid-cols-2 gap-10 items-center">
+
+            {/* Left: text */}
             <div>
-              <p className="text-white font-bold text-3xl">{projects.length}</p>
-              <p className="text-gray-400 text-xs mt-0.5">Total Listings</p>
-            </div>
-            <div className="w-px bg-white/10" />
-            <div>
-              <p className="text-white font-bold text-3xl">{available.length}</p>
-              <p className="text-gray-400 text-xs mt-0.5">Available Now</p>
-            </div>
-            {agency.address && (
-              <>
-                <div className="w-px bg-white/10" />
-                <div className="flex items-center gap-2 text-gray-400 text-sm">
-                  <MapPin size={14} style={{ color: theme.accent }} />
-                  {agency.address}
+              <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest mb-6 border border-white/10"
+                style={{ color: theme.accent, backgroundColor: `${theme.accent}15` }}>
+                <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: theme.accent }} />
+                Real Estate Agency
+              </div>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white mb-5 leading-[1.1] tracking-tight">
+                {agency.name}
+              </h1>
+              <p className="text-gray-300 text-lg mb-8 leading-relaxed max-w-lg">
+                {agency.description || 'Premium properties in Turkey\'s most desirable locations.'}
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <a href="#properties"
+                  className="flex items-center gap-2 font-bold text-sm px-6 py-3.5 rounded-xl transition hover:opacity-90"
+                  style={{ backgroundColor: theme.accent, color: '#fff' }}>
+                  Explore Properties <ArrowRight size={15} />
+                </a>
+                {waNumber && (
+                  <a href={`https://wa.me/${waNumber}`} target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold text-sm px-6 py-3.5 rounded-xl transition backdrop-blur-sm border border-white/10">
+                    <MessageCircle size={15} /> Talk to Us
+                  </a>
+                )}
+              </div>
+
+              {/* Stats row */}
+              <div className="flex flex-wrap items-center gap-6 mt-10 pt-8 border-t border-white/10">
+                <div>
+                  <p className="text-white font-extrabold text-3xl">{projects.length}</p>
+                  <p className="text-gray-500 text-xs mt-0.5">Total Listings</p>
                 </div>
-              </>
+                <div className="w-px h-10 bg-white/10" />
+                <div>
+                  <p className="font-extrabold text-3xl" style={{ color: theme.accent }}>{available.length}</p>
+                  <p className="text-gray-500 text-xs mt-0.5">Available Now</p>
+                </div>
+                {agency.address && (
+                  <>
+                    <div className="w-px h-10 bg-white/10 hidden sm:block" />
+                    <div className="flex items-start gap-2 text-gray-400 text-sm max-w-[200px]">
+                      <MapPin size={14} className="mt-0.5 flex-shrink-0" style={{ color: theme.accent }} />
+                      {agency.address}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Right: Featured property card */}
+            {ordered[0] && (
+              <div className="hidden lg:block">
+                <p className="text-xs font-bold uppercase tracking-widest mb-3 flex items-center gap-2"
+                  style={{ color: theme.accent }}>
+                  <span className="w-4 h-px" style={{ backgroundColor: theme.accent, display:'inline-block' }} />
+                  Featured Listing
+                </p>
+                <a
+                  href={`/projects/${ordered[0].id}`}
+                  className="block rounded-3xl overflow-hidden border border-white/10 hover:border-white/25 transition-all duration-300 group shadow-2xl"
+                  style={{ backgroundColor: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)' }}
+                >
+                  {ordered[0].imageUrl ? (
+                    <div className="h-60 overflow-hidden">
+                      <img
+                        src={ordered[0].imageUrl}
+                        alt={ordered[0].name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                  ) : (
+                    <div className="h-60 flex items-center justify-center bg-white/5">
+                      <Building2 size={40} className="text-white/20" />
+                    </div>
+                  )}
+                  <div className="p-5">
+                    {ordered[0].location && (
+                      <p className="text-white/50 text-xs flex items-center gap-1 mb-1">
+                        <MapPin size={11} /> {ordered[0].location}
+                      </p>
+                    )}
+                    <p className="text-white font-bold text-xl leading-snug">{ordered[0].name}</p>
+                    {ordered[0].price && (
+                      <p className="text-2xl font-extrabold mt-1" style={{ color: theme.accent }}>
+                        {formatPrice(ordered[0].price, ordered[0].currency)}
+                      </p>
+                    )}
+                    <div className="flex items-center justify-between mt-4">
+                      <div className="flex gap-4 text-white/50 text-sm">
+                        {ordered[0].bedrooms && <span className="flex items-center gap-1"><BedDouble size={13} /> {ordered[0].bedrooms} Beds</span>}
+                        {ordered[0].area && <span className="flex items-center gap-1"><Maximize2 size={13} /> {ordered[0].area} m²</span>}
+                      </div>
+                      <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ backgroundColor: `${theme.accent}25`, color: theme.accent }}>
+                        View Details →
+                      </span>
+                    </div>
+                  </div>
+                </a>
+              </div>
             )}
+
           </div>
         </div>
       </header>
@@ -333,7 +401,7 @@ export default function AgencySite({ agency, projects }: Props) {
       </main>
 
       {/* FAQ */}
-      <section className="bg-white py-16 border-t border-gray-100">
+      <section id="faq" className="bg-white py-16 border-t border-gray-100">
         <div className="max-w-3xl mx-auto px-5">
           <div className="text-center mb-10">
             <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: theme.accent }}>FAQ</p>
