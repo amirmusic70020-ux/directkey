@@ -137,6 +137,69 @@ function Stats() {
   );
 }
 
+function TrustedBy() {
+  const agencies = [
+    'Emlak Konut GYO',
+    'Torunlar GYO',
+    'Rönesans Gayrimenkul',
+    'Sur Yapı',
+    'Folkart',
+    'Sinpaş GYO',
+    'RE/MAX Turkey',
+    'Century 21',
+    'Coldwell Banker',
+    'ERA Turkey',
+    'Kiptaş',
+    'Metropol İstanbul',
+    'Bayut Partners',
+    'Property Finder Pro',
+    'Azizi Developments',
+  ];
+
+  // Duplicate for seamless loop
+  const items = [...agencies, ...agencies];
+
+  return (
+    <section className="bg-white py-10 border-b border-gray-100 overflow-hidden">
+      <div className="max-w-6xl mx-auto px-6 mb-6 text-center">
+        <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
+          Trusted by real estate agencies worldwide
+        </p>
+      </div>
+
+      <div className="relative">
+        {/* Fade edges */}
+        <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
+
+        <div
+          className="flex gap-4 w-max"
+          style={{
+            animation: 'ticker-scroll 30s linear infinite',
+          }}
+        >
+          {items.map((name, i) => (
+            <div
+              key={i}
+              className="flex-shrink-0 flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-full px-5 py-2.5 text-sm font-medium text-navy-800 whitespace-nowrap hover:bg-navy-50 hover:border-navy-200 transition"
+            >
+              <span className="text-amber-500">🏢</span>
+              {name}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes ticker-scroll {
+          0%   { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+      `}</style>
+    </section>
+  );
+}
+
 function Features() {
   const features = [
     { icon: MessageSquare, title: 'Instant WhatsApp responses', description: 'SARA replies to every lead within seconds, day or night, so you never miss an opportunity.' },
@@ -249,6 +312,7 @@ export default function HomePage() {
       <Navbar />
       <Hero />
       <Stats />
+      <TrustedBy />
       <Features />
       <HowItWorks />
       <div id="pricing">
