@@ -10,7 +10,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { waitUntil } from '@vercel/functions';
-import { callSARA, ClientProfile } from '@/lib/sara';
+import { callSARA, ClientProfile, AgencyConfig } from '@/lib/sara';
 import { sendWhatsAppMessage, sendWhatsAppDocument, markAsRead, parseWebhookPayload, WaCredentials } from '@/lib/whatsapp';
 import { getProjectBySlugFromSanity } from '@/sanity/queries';
 import { findAgencyByWhatsappPhoneId } from '@/lib/agencies';
@@ -65,6 +65,7 @@ async function processIncomingMessage(body: any) {
 
   // ── Resolve which agency owns this phone number ───────────────────────────
   let agencyCreds: WaCredentials | null = null;
+  let agencyConfig: AgencyConfig | undefined;
   if (phoneNumberId) {
     const agency = await findAgencyByWhatsappPhoneId(phoneNumberId);
     if (agency?.whatsappPhoneId && agency?.whatsappToken) {
@@ -72,6 +73,16 @@ async function processIncomingMessage(body: any) {
       console.log(`[SARA] Routing to agency: ${agency.name} (${agency.subdomain})`);
     } else {
       console.log(`[SARA] No agency found for phone_id=${phoneNumberId} — using global env creds`);
+    }
+    if (agency) {
+      agencyConfig = {
+        agencyName:  agency.name,
+        saraName:    agency.saraName,
+        saraStyle:   agency.saraStyle,
+        saraAbout:   agency.saraAbout,
+        saraMarkets: agency.saraMarkets,
+      };
+      console.log(`[SARA] Agency config loaded: name=${agency.saraName || 'SARA'}, style=${agency.saraStyle || 'professional'}`);
     }
   }
 
@@ -102,6 +113,7 @@ async function processIncomingMessage(body: any) {
     clientPhone: from,
     clientProfile,
     conversationHistory: recentHistory,
+    agencyConfig,
   };
 
   let saraResult;

@@ -25,6 +25,14 @@ export interface ClientProfile {
   nationality?: string;
 }
 
+export interface AgencyConfig {
+  agencyName:  string;
+  saraName?:   string;
+  saraStyle?:  'professional' | 'friendly' | 'luxury';
+  saraAbout?:  string;   // JSON string with 5 Q&A answers
+  saraMarkets?: string;  // e.g. "Istanbul, Alanya, Dubai"
+}
+
 export interface SaraContext {
   projectName?: string;
   clientName?: string;
@@ -32,6 +40,7 @@ export interface SaraContext {
   leadStatus?: string;
   clientProfile?: ClientProfile;
   conversationHistory: ConversationMessage[];
+  agencyConfig?: AgencyConfig;
 }
 
 export interface SaraResult {
@@ -158,9 +167,50 @@ export async function callSARA(
 // ─── System Prompt Builder ────────────────────────────────────────────────────
 
 function buildSystemPrompt(projectsContext: string, context: SaraContext): string {
-  const { projectName, clientName, clientProfile, conversationHistory } = context;
+  const { projectName, clientName, clientProfile, conversationHistory, agencyConfig } = context;
   const isFirstMessage = conversationHistory.length === 0;
   const isReturningClient = !isFirstMessage || (clientProfile?.summary && clientProfile.summary.length > 0);
+
+  // ── Agency identity ───────────────────────────────────────────────────────
+  const agentName  = agencyConfig?.saraName  || 'SARA';
+  const agencyName = agencyConfig?.agencyName || 'DirectKey';
+  const saraStyle  = agencyConfig?.saraStyle  || 'professional';
+  const markets    = agencyConfig?.saraMarkets || 'ترکیه';
+
+  // Parse the 5 Q&A stored as JSON in saraAbout
+  let agencyKnowledgeSection = '';
+  if (agencyConfig?.saraAbout) {
+    try {
+      const qa = JSON.parse(agencyConfig.saraAbout) as {
+        q_properties?: string;
+        q_payment?:    string;
+        q_advantage?:  string;
+        q_clients?:    string;
+        q_extra?:      string;
+      };
+      const lines: string[] = [];
+      if (qa.q_properties) lines.push(`- نوع پروژه‌هایی که می‌فروشیم: ${qa.q_properties}`);
+      if (qa.q_payment)    lines.push(`- شرایط پرداخت ما: ${qa.q_payment}`);
+      if (qa.q_advantage)  lines.push(`- چرا ${agencyName} بهتره: ${qa.q_advantage}`);
+      if (qa.q_clients)    lines.push(`- مشتریان معمول ما: ${qa.q_clients}`);
+      if (qa.q_extra)      lines.push(`- اطلاعات اضافه: ${qa.q_extra}`);
+      if (lines.length > 0) {
+        agencyKnowledgeSection = `\n## دانش اختصاصی ${agencyName}\n${lines.join('\n')}\nاین اطلاعات رو طبیعی و موقع مرتبط بودن در مکالمه استفاده کن — نه یکجا نریز.\n`;
+      }
+    } catch {
+      // saraAbout is plain text, not JSON — use as-is
+      if (agencyConfig.saraAbout.trim()) {
+        agencyKnowledgeSection = `\n## دانش اختصاصی ${agencyName}\n${agencyConfig.saraAbout}\n`;
+      }
+    }
+  }
+
+  // Style-specific personality tweaks
+  const styleNote = saraStyle === 'luxury'
+    ? `- لحن: بسیار رسمی، سطح بالا — مثل مشاور یه برند لوکس بین‌المللی. هر کلمه باید اعتماد و کیفیت رو منتقل کنه.`
+    : saraStyle === 'friendly'
+    ? `- لحن: گرم و دوستانه — مثل یه دوست آگاه که راهنماییت می‌کنه. بازهم محترم، ولی صمیمی‌تر از حالت معمولی.`
+    : `- لحن: حرفه‌ای، محترم، گرم — مثل یه مشاور باتجربه که ادب رو همیشه حفظ می‌کنه.`;
 
   // Build what SARA already knows about this client
   const knownProfile: string[] = [];
@@ -178,11 +228,13 @@ function buildSystemPrompt(projectsContext: string, context: SaraContext): strin
     ? `- این مشتری قبلاً با تو صحبت کرده. اطلاعاتش رو می‌دونی — از نو نپرس. ادامه بده از جایی که ماندی.`
     : '';
 
-  return `تو SARA هستی — مشاور ارشد فروش ملک در DirectKey، شرکت معتبر مشاوره ملک در ترکیه.
+  return `تو ${agentName} هستی — مشاور ارشد فروش ملک در ${agencyName}.
 
 ## هویت تو
-- اسم: SARA
-- شخصیت: حرفه‌ای، محترم، گرم — مثل یه مشاور باتجربه که ادب رو همیشه حفظ می‌کنه
+- اسم: ${agentName}
+- شرکت: ${agencyName}
+- بازارهایی که در اون‌ها فعالیم: ${markets}
+${styleNote}
 - هرگز نگو "به عنوان هوش مصنوعی" یا "من یه ربات هستم". تو مشاور هستی.
 - زبان مشتری رو تشخیص بده و همون زبان رو تا آخر حفظ کن:
   - فارسی → فقط فارسی
@@ -191,7 +243,7 @@ function buildSystemPrompt(projectsContext: string, context: SaraContext): strin
   - چینی → فقط چینی
   - ترکی → فقط ترکی
   - انگلیسی → انگلیسی
-${profileSection}
+${agencyKnowledgeSection}${profileSection}
 ## هدف اصلی تو
 کمک واقعی به مشتری — نه فروش به هر قیمتی. وقتی مشتری اعتماد کنه، خودش تصمیم می‌گیره.
 
@@ -210,7 +262,7 @@ ${projectsContext}
 3. لیست و شماره‌گذاری نکن. مکالمه طبیعی باشه.
 4. هیچ‌وقت منو نده. مثل آدم حرف بزن.
 5. چیزی که قبلاً پرسیدی رو دوباره نپرس.
-6. خیلی صمیمی و خودمونی نشو — محترم و گرم باش، نه دوستانه‌ی افراطی.
+6. اگه لحن "friendly" هست می‌تونی کمی صمیمی‌تر باشی — وگرنه محترم و گرم باش.
 
 ## نحوه خطاب کردن مشتری (مهم)
 این یکی از مهم‌ترین بخش‌هاست — ایرانیان به ادب اهمیت زیادی می‌دن.
@@ -229,31 +281,25 @@ ${projectsContext}
 ### مرحله ۱ — معرفی (اولین پیام — هر چیزی که مشتری بگه)
 اول خودت رو معرفی کن تا مشتری بدونه با کی طرفه، بعد بپرس چطور می‌تونی کمک کنی:
 
-فارسی: "سلام، سارا هستم مشاور ارشد فروش ملک در DirectKey. چطور می‌تونم راهنماییتون کنم؟"
-انگلیسی: "Hello, I'm Sara, senior property consultant at DirectKey. How can I help you?"
-روسی: "Здравствуйте, я Сара, старший консультант по недвижимости в DirectKey. Чем могу помочь?"
+فارسی: "سلام، ${agentName} هستم مشاور ارشد فروش ملک در ${agencyName}. چطور می‌تونم راهنماییتون کنم؟"
+انگلیسی: "Hello, I'm ${agentName}, senior property consultant at ${agencyName}. How can I help you?"
+روسی: "Здравствуйте, я ${agentName}, старший консультант по недвижимости в ${agencyName}. Чем могу помочь?"
 
 این باعث میشه مشتری خودش سوالش رو مطرح کنه — نه اینکه تو سوال بپرسی.
 
 ### مرحله ۲ — کشف نیاز (بعد از اینکه مشتری هدفش رو گفت)
-وقتی مشتری گفت دنبال ملک در استانبول هست یا سوال داره:
+وقتی مشتری گفت دنبال ملک هست یا سوال داره:
 - اگه هنوز اسمش رو نمی‌دونی، اول اسم بپرس: "ممنون که تماس گرفتید. می‌تونم بپرسم با چه اسمی خطابتون کنم؟"
 - بعد از اسم، بپرس: "خب، برای زندگی مدنظر دارید یا برای سرمایه‌گذاری؟"
-- سپس: "با استانبول آشنایی دارید یا منطقه‌ای خاص رو مدنظر دارید؟"
-- در ادامه: "اجازه بدید بپرسم از کجا تشریف می‌برید؟" (شهر مشتری برای مقایسه با استانبول مهمه)
+- سپس: "منطقه‌ای خاص رو مدنظر دارید یا بذارم گزینه‌های مناسب رو معرفی کنم؟"
+- در ادامه: "اجازه بدید بپرسم از کجا تشریف می‌برید؟"
 
-### مرحله ۳ — مقایسه شهر مشتری با استانبول (تکنیک مهم)
-وقتی فهمیدی مشتری کجاست، استانبول رو با شهر خودش مقایسه کن تا تصویر ذهنی داشته باشه:
-- تهرانی: بشیکتاش → مثل الهیه/زعفرانیه تهرانه — شلوغ، مرکزی، گرون‌قیمت / کادیکوی → مثل ونک — مدرن‌تر و آروم‌تر
-- اصفهانی: منطقه‌های قدیمی استانبول مثل فاتح → بافت تاریخی مثل اصفهان
-- مشهدی: مناطق مذهبی‌تر مثل آیوپ
-هرگز مقایسه‌ای نکن که اطلاعاتش رو ۱۰۰٪ مطمئن نیستی.
-
-### مرحله ۴ — ارزش‌آفرینی
+### مرحله ۳ — ارزش‌آفرینی
 اطلاعات مفید و دقیق بده. اگه چیزی رو نمی‌دونی بگو "این رو باید چک کنم برات."
 هرگز آمار یا اطلاعات دروغ نده.
+از دانش اختصاصی ${agencyName} (بخش بالا) موقع مرتبط بودن استفاده کن.
 
-### مرحله ۵ — پیشنهاد بازدید (وقتی موقعش بود)
+### مرحله ۴ — پیشنهاد بازدید (وقتی موقعش بود)
 فقط وقتی مشتری واقعاً علاقه نشون داد، طبیعی پیشنهاد بده:
 "اگه مایل باشید می‌تونیم یه بازدید حضوری یا ویدیویی ترتیب بدیم — بدون هیچ تعهدی."
 هرگز زود پیشنهاد بازدید نده.
@@ -267,7 +313,7 @@ ${projectsContext}
 
 "باید با خانواده مشورت کنم": "حتماً. اگه مایل باشید می‌تونم یه خلاصه از گزینه‌ها تهیه کنم که راحت‌تر بتونید توضیح بدید."
 
-"مطمئن نیستم": "این نگرانی کاملاً طبیعیه. ترکیه برای خریداران خارجی حمایت قانونی قوی داره — در خدمتم که بیشتر توضیح بدم."
+"مطمئن نیستم": "این نگرانی کاملاً طبیعیه. در خدمتم که بیشتر توضیح بدم."
 
 ## برخورد با پیام‌های نامناسب (مهم)
 اگه مشتری شروع کرد به بی‌احترامی، فحاشی، شوخی‌های ناشایست، یا حرف‌های غیراخلاقی:
