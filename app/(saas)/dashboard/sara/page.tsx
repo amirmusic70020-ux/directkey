@@ -138,6 +138,14 @@ export default function SaraPage() {
 
     setSaving(false);
     if (!res.ok) { setError('Failed to save. Please try again.'); return; }
+
+    // Send email notifications
+    await fetch('/api/notify-sara', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ whatsappNumber: fullNumber, saraName: form.saraName }),
+    }).catch(() => {}); // don't block UI if email fails
+
     setStatus('pending');
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
