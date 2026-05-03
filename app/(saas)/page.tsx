@@ -184,12 +184,12 @@ function Hero() {
 
 // ─── Languages ────────────────────────────────────────────────────────────────
 const LANGS = [
-  { flag: '🇮🇷', lang: 'Persian',   text: 'سلام، دنبال ملک در استانبول هستم',      delay: 0 },
-  { flag: '🇸🇦', lang: 'Arabic',    text: 'مرحباً، أبحث عن شقة للاستثمار',          delay: 100 },
-  { flag: '🇷🇺', lang: 'Russian',   text: 'Здравствуйте, ищу квартиру в Стамбуле', delay: 200 },
-  { flag: '🇺🇸', lang: 'English',   text: 'Hi, I'm looking for a 2BR apartment',    delay: 300 },
-  { flag: '🇹🇷', lang: 'Turkish',   text: 'Merhaba, İstanbul\'da daire arıyorum',   delay: 400 },
-  { flag: '🇨🇳', lang: 'Chinese',   text: '您好，我想在伊斯坦布尔买套公寓',            delay: 500 },
+  { flag: '🇮🇷', lang: 'Persian',   text: 'سلام، دنبال ملک در استانبول هستم',       delay: 0 },
+  { flag: '🇸🇦', lang: 'Arabic',    text: 'مرحبا، ابحث عن شقة للاستثمار',           delay: 100 },
+  { flag: '🇷🇺', lang: 'Russian',   text: 'Здравствуйте, ищу квартиру в Стамбуле',  delay: 200 },
+  { flag: '🇺🇸', lang: 'English',   text: 'Hi, looking for a 2BR apartment',         delay: 300 },
+  { flag: '🇹🇷', lang: 'Turkish',   text: 'Merhaba, Istanbul da daire ariyorum',     delay: 400 },
+  { flag: '🇨🇳', lang: 'Chinese',   text: '您好，我想在伊斯坦布尔买套公寓',             delay: 500 },
 ];
 
 function Languages() {
