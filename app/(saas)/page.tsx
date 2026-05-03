@@ -24,18 +24,18 @@ function useReveal(threshold = 0.12) {
 
 // ─── Animated WhatsApp Chat ───────────────────────────────────────────────────
 const MESSAGES = [
-  { from: 'user',  text: 'سلام، دنبال آپارتمان در استانبول می‌گردم' },
-  { from: 'sara',  text: 'سلام! خوش آمدید 🌟 برای سکونت دنبال می‌گردید یا سرمایه‌گذاری؟' },
-  { from: 'user',  text: 'سرمایه‌گذاری. بودجه‌ام حدود ۲۰۰ هزار دلاره' },
-  { from: 'sara',  text: '۳ پروژه عالی در این بودجه دارم. می‌خواید لینک پروژه‌ها رو بفرستم؟' },
-  { from: 'user',  text: 'بله لطفاً' },
-  { from: 'sara',  text: 'فرستادم ✓ بازدید حضوری هم می‌تونم ترتیب بدم — پنج‌شنبه مناسبه؟' },
+  { from: 'user', text: 'Hi, I saw your listing in Istanbul — is it available?' },
+  { from: 'sara', text: 'Hello! Yes, it is. Are you looking to buy or invest?' },
+  { from: 'user', text: 'Invest. Budget around $200K' },
+  { from: 'sara', text: 'I have 3 great options in that range. Want me to send the details?' },
+  { from: 'user', text: 'Yes please' },
+  { from: 'sara', text: 'Sent! I can also arrange a viewing this week — Thursday work for you? ✓' },
 ];
 
 function WhatsAppChat() {
   const [shown, setShown] = useState(0);
   const [typing, setTyping] = useState(false);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (shown >= MESSAGES.length) return;
@@ -51,7 +51,8 @@ function WhatsAppChat() {
   }, [shown]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const el = chatContainerRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
   }, [shown, typing]);
 
   return (
@@ -76,7 +77,7 @@ function WhatsAppChat() {
           </div>
         </div>
         {/* Messages */}
-        <div className="bg-[#0b141a] px-3 py-3 space-y-1.5 h-64 overflow-y-auto scrollbar-none">
+        <div ref={chatContainerRef} className="bg-[#0b141a] px-3 py-3 space-y-1.5 h-64 overflow-y-auto scrollbar-none">
           {MESSAGES.slice(0, shown).map((m, i) => (
             <div key={i} className={`flex ${m.from === 'user' ? 'justify-end' : 'justify-start'}`}
               style={{ animation: 'popIn 0.25s ease forwards' }}>
@@ -84,7 +85,7 @@ function WhatsAppChat() {
                 m.from === 'user'
                   ? 'bg-[#005c4b] text-white rounded-tr-sm'
                   : 'bg-[#1f2c33] text-gray-100 rounded-tl-sm'
-              }`} dir="rtl">{m.text}</div>
+              }`}>{m.text}</div>
             </div>
           ))}
           {typing && (
@@ -96,7 +97,6 @@ function WhatsAppChat() {
               </div>
             </div>
           )}
-          <div ref={bottomRef} />
         </div>
       </div>
       {/* CRM badge */}
@@ -184,12 +184,12 @@ function Hero() {
 
 // ─── Languages ────────────────────────────────────────────────────────────────
 const LANGS = [
-  { flag: '🇮🇷', lang: 'Persian',   text: 'سلام، دنبال ملک در استانبول هستم',       delay: 0 },
-  { flag: '🇸🇦', lang: 'Arabic',    text: 'مرحبا، ابحث عن شقة للاستثمار',           delay: 100 },
-  { flag: '🇷🇺', lang: 'Russian',   text: 'Здравствуйте, ищу квартиру в Стамбуле',  delay: 200 },
-  { flag: '🇺🇸', lang: 'English',   text: 'Hi, looking for a 2BR apartment',         delay: 300 },
-  { flag: '🇹🇷', lang: 'Turkish',   text: 'Merhaba, Istanbul da daire ariyorum',     delay: 400 },
-  { flag: '🇨🇳', lang: 'Chinese',   text: '您好，我想在伊斯坦布尔买套公寓',             delay: 500 },
+  { code: 'IR', lang: 'Persian',  text: 'سلام، دنبال ملک در استانبول هستم',      reply: 'سلام! برای سکونت یا سرمایه‌گذاری؟', delay: 0 },
+  { code: 'SA', lang: 'Arabic',   text: 'مرحبا، ابحث عن شقة للاستثمار',          reply: 'أهلاً! ما هي ميزانيتك التقريبية؟', delay: 100 },
+  { code: 'RU', lang: 'Russian',  text: 'Здравствуйте, ищу квартиру в Стамбуле', reply: 'Здравствуйте! Для жилья или инвестиций?', delay: 200 },
+  { code: 'US', lang: 'English',  text: 'Hi, looking for a 2BR in Istanbul',      reply: 'Hello! Are you buying to live or invest?', delay: 300 },
+  { code: 'TR', lang: 'Turkish',  text: 'Merhaba, Istanbul da daire ariyorum',    reply: 'Merhaba! Oturmak icin mi yoksa yatirim mi?', delay: 400 },
+  { code: 'CN', lang: 'Chinese',  text: '您好，我想在伊斯坦布尔买套公寓',            reply: '您好！请问是自住还是投资？', delay: 500 },
 ];
 
 function Languages() {
@@ -215,14 +215,22 @@ function Languages() {
                 opacity: visible ? 1 : 0,
                 transform: visible ? 'translateY(0)' : 'translateY(20px)',
               }}>
-              <div className="flex items-center gap-3 mb-3">
-                <span className="text-2xl">{l.flag}</span>
-                <span className="text-white/40 text-xs font-semibold uppercase tracking-wider">{l.lang}</span>
+              <div className="flex items-center gap-2.5 mb-4">
+                <span className="bg-white/10 text-white/70 text-[10px] font-bold px-2 py-0.5 rounded tracking-widest">{l.code}</span>
+                <span className="text-white/30 text-xs font-semibold uppercase tracking-wider">{l.lang}</span>
               </div>
-              <p className="text-white/80 text-sm leading-relaxed">{l.text}</p>
-              <div className="mt-3 flex items-center gap-2">
+              <div className="space-y-2">
+                <div className="flex justify-end">
+                  <span className="bg-[#005c4b] text-white/90 text-xs px-3 py-1.5 rounded-2xl rounded-tr-sm max-w-[85%] text-right leading-relaxed">{l.text}</span>
+                </div>
+                <div className="flex justify-start items-center gap-2">
+                  <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[#C9A96E] to-[#a07840] flex items-center justify-center text-[8px] font-bold text-white flex-shrink-0">S</div>
+                  <span className="bg-white/8 text-white/70 text-xs px-3 py-1.5 rounded-2xl rounded-tl-sm max-w-[85%] leading-relaxed">{l.reply}</span>
+                </div>
+              </div>
+              <div className="mt-3 flex items-center gap-1.5">
                 <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
-                <span className="text-green-400 text-xs">SARA is replying...</span>
+                <span className="text-green-400/70 text-[10px]">Detected & replied instantly</span>
               </div>
             </div>
           ))}
@@ -236,11 +244,11 @@ function Languages() {
 function Pipeline() {
   const { ref, visible } = useReveal();
   const steps = [
-    { icon: '💬', label: 'Message arrives', sub: 'Any language, any time' },
-    { icon: '🧠', label: 'SARA qualifies', sub: 'Budget, purpose, timeline' },
-    { icon: '🏠', label: 'Property matched', sub: 'From your listings' },
-    { icon: '📅', label: 'Viewing booked', sub: 'Automatically' },
-    { icon: '✅', label: 'CRM updated', sub: 'Score, notes, status' },
+    { icon: 'MSG', color: 'from-blue-500/20 to-blue-600/10 border-blue-500/20',   dot: 'bg-blue-400',   label: 'Message arrives', sub: 'Any language, any time' },
+    { icon: 'AI',  color: 'from-purple-500/20 to-purple-600/10 border-purple-500/20', dot: 'bg-purple-400', label: 'SARA reads intent', sub: 'Budget, purpose, timeline, nationality' },
+    { icon: 'MATCH', color: 'from-[#C9A96E]/20 to-[#C9A96E]/5 border-[#C9A96E]/20', dot: 'bg-[#C9A96E]',  label: 'Property matched', sub: 'From your exact listings' },
+    { icon: 'BOOK', color: 'from-green-500/20 to-green-600/10 border-green-500/20', dot: 'bg-green-400',  label: 'Viewing booked', sub: 'Date confirmed automatically' },
+    { icon: 'CRM', color: 'from-orange-500/20 to-orange-600/10 border-orange-500/20', dot: 'bg-orange-400', label: 'CRM updated', sub: 'Score, summary, full history' },
   ];
   return (
     <section className="bg-[#0a0a0a] py-28 border-t border-white/5">
@@ -262,11 +270,14 @@ function Pipeline() {
                   opacity: visible ? 1 : 0,
                   transform: visible ? 'scale(1)' : 'scale(0.8)',
                 }}>
-                <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl mb-3 hover:bg-white/8 transition">
-                  {s.icon}
+                <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${s.color} border flex items-center justify-center mb-3 transition-all hover:scale-105`}>
+                  <div className="flex flex-col items-center gap-0.5">
+                    <div className={`w-2 h-2 rounded-full ${s.dot}`} />
+                    <span className="text-white/50 text-[8px] font-black tracking-widest">{s.icon}</span>
+                  </div>
                 </div>
                 <p className="text-white font-semibold text-sm">{s.label}</p>
-                <p className="text-white/35 text-xs mt-1">{s.sub}</p>
+                <p className="text-white/45 text-xs mt-1 max-w-[100px] mx-auto">{s.sub}</p>
               </div>
               {i < steps.length - 1 && (
                 <div className="hidden md:block flex-1 h-px bg-gradient-to-r from-white/10 via-[#C9A96E]/30 to-white/10 mx-3 mt-[-28px]" />
@@ -385,7 +396,7 @@ function FollowUpVisual() {
             <div className={`w-5 h-5 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center text-[10px] font-bold ${
               t.done ? 'bg-green-500 text-white' : t.active ? 'bg-[#C9A96E] text-black' : 'bg-white/10'
             }`}>
-              {t.done ? 'v' : t.active ? '>' : 'o'}
+              {t.done ? '✓' : t.active ? '→' : '·'}
             </div>
             <div>
               <p className="text-white/25 text-[10px] mb-0.5">{t.time}</p>
@@ -500,7 +511,7 @@ function Footer() {
     <footer className="bg-black border-t border-white/5 py-8">
       <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
         <span className="font-bold text-white text-sm">Direct<span className="text-[#C9A96E]">Key</span></span>
-        <p className="text-white/15 text-xs">2025 DirectKey. All rights reserved.</p>
+        <p className="text-white/15 text-xs">© 2026 DirectKey. All rights reserved.</p>
         <div className="flex items-center gap-6 text-xs text-white/20">
           <Link href="/privacy" className="hover:text-white/50 transition">Privacy</Link>
           <Link href="/terms" className="hover:text-white/50 transition">Terms</Link>
@@ -514,8 +525,10 @@ function Footer() {
 const globalStyles = `
   @keyframes popIn { from { opacity:0; transform:scale(0.95) translateY(4px); } to { opacity:1; transform:scale(1) translateY(0); } }
   @keyframes ticker-scroll { 0% { transform:translateX(0); } 100% { transform:translateX(-50%); } }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
   .scrollbar-none::-webkit-scrollbar { display:none; }
   .scrollbar-none { -ms-overflow-style:none; scrollbar-width:none; }
+  html { scroll-behavior: smooth; }
 `;
 
 export default function HomePage() {
@@ -537,4 +550,3 @@ export default function HomePage() {
       <Footer />
     </>
   );
-}
