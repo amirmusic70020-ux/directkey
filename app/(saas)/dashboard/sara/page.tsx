@@ -96,16 +96,17 @@ export default function SaraPage() {
   const [showCodes,   setShowCodes]   = useState(false);
 
   const [form, setForm] = useState({
-    whatsappNumber: '',
-    saraName:       '',
-    saraStyle:      'professional',
-    saraMarkets:    '',
-    logo:           '',
-    q_properties:   '',
-    q_payment:      '',
-    q_advantage:    '',
-    q_clients:      '',
-    q_extra:        '',
+    whatsappNumber:  '',
+    telegramBotName: '',
+    saraName:        '',
+    saraStyle:       'professional',
+    saraMarkets:     '',
+    logo:            '',
+    q_properties:    '',
+    q_payment:       '',
+    q_advantage:     '',
+    q_clients:       '',
+    q_extra:         '',
   });
 
   const [status,    setStatus]    = useState<'inactive' | 'pending' | 'active'>('inactive');
@@ -203,11 +204,12 @@ export default function SaraPage() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        whatsappNumber: fullNumber,
-        saraName:       form.saraName,
-        saraStyle:      form.saraStyle,
+        whatsappNumber:  fullNumber,
+        telegramBotName: form.telegramBotName,
+        saraName:        form.saraName,
+        saraStyle:       form.saraStyle,
         saraAbout,
-        saraMarkets:    form.saraMarkets,
+        saraMarkets:     form.saraMarkets,
       }),
     });
 
@@ -218,7 +220,7 @@ export default function SaraPage() {
     await fetch('/api/notify-sara', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ whatsappNumber: fullNumber, saraName: form.saraName }),
+      body: JSON.stringify({ whatsappNumber: fullNumber, saraName: form.saraName, telegramBotName: form.telegramBotName }),
     }).catch(() => {});
 
     setStatus('pending');
@@ -310,9 +312,48 @@ export default function SaraPage() {
             />
           </div>
           {errors.whatsappNumber && <p className="text-red-500 text-xs mt-1.5">{errors.whatsappNumber}</p>}
+          <div className="mt-3 flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+            <AlertCircle size={15} className="text-amber-500 mt-0.5 flex-shrink-0" />
+            <p className="text-xs text-amber-800 leading-relaxed">
+              <strong>Important:</strong> This number must <strong>not</strong> be registered on regular WhatsApp or WhatsApp Business app. It must be a dedicated number used only for the API. If the number already has WhatsApp, the connection will fail.
+            </p>
+          </div>
         </div>
 
-        {/* 2. Profile Picture */}
+        {/* 2. Telegram Bot */}
+        <div className={`bg-white rounded-2xl border p-6 transition ${isLocked ? 'border-gray-100 opacity-60 pointer-events-none' : 'border-gray-200'}`}>
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center">
+              <MessageCircle size={18} className="text-blue-500" />
+            </div>
+            <div>
+              <h2 className="font-semibold text-navy-900">Telegram Bot <span className="text-xs font-normal text-gray-400 ml-1">(for Iranian clients)</span></h2>
+              <p className="text-xs text-gray-400">SARA will also respond on Telegram — ideal for clients who can't use WhatsApp</p>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-navy-900 mb-1.5">Bot name you want</label>
+            <div className="flex items-center gap-2">
+              <span className="text-gray-400 text-sm font-mono">@</span>
+              <input
+                value={form.telegramBotName || ''}
+                onChange={e => setForm(p => ({ ...p, telegramBotName: e.target.value.replace(/\s/g, '') }))}
+                placeholder="YourAgencySaraBot"
+                maxLength={32}
+                className="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-navy-500 text-sm font-mono"
+              />
+            </div>
+            <p className="text-xs text-gray-400 mt-1.5">Must end in <span className="font-mono">Bot</span> · e.g. <span className="font-mono">NivakSaraBot</span></p>
+          </div>
+          <div className="mt-4 flex items-start gap-2 bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
+            <AlertCircle size={15} className="text-blue-500 mt-0.5 flex-shrink-0" />
+            <p className="text-xs text-blue-800 leading-relaxed">
+              Our team will create this Telegram bot for you and connect it to SARA. Your clients can message <span className="font-mono">@{form.telegramBotName || 'YourBot'}</span> on Telegram and get instant replies — same as WhatsApp.
+            </p>
+          </div>
+        </div>
+
+        {/* 3. Profile Picture */}
         <div className={`bg-white rounded-2xl border p-6 transition ${isLocked ? 'border-gray-100 opacity-60 pointer-events-none' : 'border-gray-200'}`}>
           <div className="flex items-center gap-3 mb-5">
             <div className="w-9 h-9 bg-navy-50 rounded-xl flex items-center justify-center">
