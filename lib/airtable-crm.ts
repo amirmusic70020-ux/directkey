@@ -43,9 +43,9 @@ export async function findLeadByPhone(phone: string): Promise<AirtableLead | nul
   if (!BASE_ID || !TOKEN) return null;
 
   try {
-    // Telegram IDs (tg:123456) — exact match
+    // Telegram IDs (tg:123456) — search by chat ID number
     const formula = phone.startsWith('tg:')
-      ? encodeURIComponent(`{WhatsApp} = "${phone}"`)
+      ? encodeURIComponent(`SEARCH("${phone.replace('tg:', '')}", {WhatsApp})`)
       : encodeURIComponent(`SEARCH("${phone.replace(/[^\d]/g, '')}", SUBSTITUTE({WhatsApp}, "+", ""))`);
 
     const res = await fetch(
