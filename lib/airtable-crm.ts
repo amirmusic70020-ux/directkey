@@ -42,11 +42,12 @@ export interface AirtableLead {
 export async function findLeadByPhone(phone: string): Promise<AirtableLead | null> {
   if (!BASE_ID || !TOKEN) return null;
 
-  // Normalize phone for search
-  const normalized = phone.replace(/[^\d]/g, '');
-
   try {
-    const formula = encodeURIComponent(`SEARCH("${normalized}", SUBSTITUTE({WhatsApp}, "+", ""))`);
+    // Telegram IDs (tg:123456) — exact match
+    const formula = phone.startsWith('tg:')
+      ? encodeURIComponent(`{WhatsApp} = "${phone}"`)
+      : encodeURIComponent(`SEARCH("${phone.replace(/[^\d]/g, '')}", SUBSTITUTE({WhatsApp}, "+", ""))`);
+
     const res = await fetch(
       `${BASE_URL}/${BASE_ID}/Leads?filterByFormula=${formula}&maxRecords=1`,
       { headers: headers() }
