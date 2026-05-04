@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { Bot, LayoutDashboard, Settings, LogOut, MessageCircle, Building2 } from 'lucide-react';
+import { Bot, LayoutDashboard, Settings, LogOut, MessageCircle, Building2, Users } from 'lucide-react';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
@@ -12,6 +12,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const navItems = [
     { href: '/dashboard',          icon: LayoutDashboard, label: 'Dashboard' },
+    { href: '/dashboard/leads',    icon: Users,           label: 'Leads'     },
     { href: '/dashboard/projects', icon: Building2,       label: 'Projects'  },
     { href: '/dashboard/sara',     icon: MessageCircle,   label: 'SARA'      },
     { href: '/dashboard/settings', icon: Settings,        label: 'Settings'  },
